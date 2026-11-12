@@ -1,0 +1,20 @@
+RemediGenius Community Edition (RemediGenius-CE)
+Copyright 2026 RemediGenius
+
+Hermes Agent: separate official runtime, pinned by image digest; upstream code is not vendored.
+https://github.com/NousResearch/hermes-agent
+Copyright (c) 2025 Nous Research. MIT License.
+Upstream licences and dependency notices remain in its image.
+
+Python dependencies are installed separately, not vendored:
+PyYAML (MIT); boto3/botocore (Apache-2.0).
+Terraform (HashiCorp, Business Source License 1.1) is downloaded at deployment time, pinned by
+version and SHA-256, and used only to validate proposed configuration; it is not redistributed.
+tflint (Mozilla Public License 2.0) and cfn-lint (Apache-2.0) are downloaded or installed at deployment time, pinned (tflint by version and
+SHA-256), and used only to check proposed changes before a pull request; they are not redistributed.
+
+Remediation playbooks (rgtriage/playbooks) reference public AWS documentation and CIS AWS Foundations
+Benchmark control descriptions; filter patterns and settings are restated, not copied text.
+
+Earlier releases (v0.1.x–v0.2.0) included third-party adapted content with its own notices; that
+content is not part of this release and its attribution remains in the git history at those tags.

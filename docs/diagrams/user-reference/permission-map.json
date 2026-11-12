@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AWS permissions: where the agent and roles live",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/permission-map.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "98fb040ea582c9a56cd9fb0373c6bc5e75a87a2e",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "human",
+      "type": "external",
+      "label": "Operator",
+      "sublabel": "Private SSM dashboard",
+      "pos": [
+        35,
+        300
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        }
+      ]
+    },
+    {
+      "id": "hermes",
+      "type": "frontend",
+      "label": "Hermes container",
+      "sublabel": "Same EC2; no AWS keys",
+      "pos": [
+        290,
+        300
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        },
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 333,
+          "end_line": 365
+        }
+      ]
+    },
+    {
+      "id": "desk",
+      "type": "backend",
+      "label": "Desk on EC2 host",
+      "sublabel": "Guard + credential owner",
+      "pos": [
+        590,
+        300
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        },
+        {
+          "path": "rgtriage/aws.py",
+          "line": 12,
+          "end_line": 71
+        }
+      ]
+    },
+    {
+      "id": "profile",
+      "type": "security",
+      "label": "EC2 instance profile",
+      "sublabel": "Contains host IAM role",
+      "pos": [
+        590,
+        65
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/iam.tf",
+          "line": 1,
+          "end_line": 62
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "type": "security",
+      "label": "Local audit role",
+      "sublabel": "IAM: desk account",
+      "pos": [
+        910,
+        65
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/iam.tf",
+          "line": 65,
+          "end_line": 105
+        }
+      ]
+    },
+    {
+      "id": "members",
+      "type": "security",
+      "label": "Member reader roles",
+      "sublabel": "IAM: target accounts",
+      "pos": [
+        910,
+        300
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/member-read-role.yaml",
+          "line": 25,
+          "end_line": 96
+        },
+        {
+          "path": "rgtriage/aws.py",
+          "line": 12,
+          "end_line": 71
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "database",
+      "label": "CE private S3 / Glue",
+      "sublabel": "Host writes evidence/state",
+      "pos": [
+        590,
+        540
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/iam.tf",
+          "line": 1,
+          "end_line": 62
+        }
+      ]
+    },
+    {
+      "id": "analytics",
+      "type": "security",
+      "label": "Analytics role",
+      "sublabel": "IAM: desk account",
+      "pos": [
+        910,
+        540
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-static/main.tf",
+          "line": 282,
+          "end_line": 312
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "human",
+      "to": "hermes",
+      "label": "1. Ask"
+    },
+    {
+      "from": "hermes",
+      "to": "desk",
+      "label": "2. Socket tool"
+    },
+    {
+      "from": "profile",
+      "to": "desk",
+      "label": "Host credentials"
+    },
+    {
+      "from": "desk",
+      "to": "audit",
+      "label": "STS: local read"
+    },
+    {
+      "from": "desk",
+      "to": "members",
+      "label": "3. STS: target read"
+    },
+    {
+      "from": "desk",
+      "to": "storage",
+      "label": "Own data only"
+    },
+    {
+      "from": "desk",
+      "to": "analytics",
+      "label": "Fixed reports"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Where things exist",
+      "items": [
+        "Hermes and desk run on the same EC2 instance in the desk account; they are separate processes.",
+        "Instance profile and IAM roles are AWS IAM objects, not additional servers. No agent is installed in member accounts."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Target readers are operator-deployed",
+      "items": [
+        "Selected members use the standard CE reader; an explicit alternate reader ARN avoids a pre-existing role-name collision.",
+        "Each target trusts only the runtime IAM ARN with an organization condition. Host policy must also allow that target."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Reader permissions",
+      "items": [
+        "SecurityAudit + ViewOnlyAccess, discovery and policy evaluation. No infrastructure deployment or IAM administration grants.",
+        "Explicit denies include secrets, application object bodies, KMS decrypt and onward AssumeRole. The audit role never hops to members."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Credential boundary",
+      "items": [
+        "Container networking blocks IMDS/private networks; only fixed desk commands cross the Unix socket.",
+        "The host has SSM, scoped own-storage writes and configured model-secret access. These are not grants on assessed applications."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Limits of the claim",
+      "items": [
+        "No self-service permission elevation is provided. A host compromise or externally broadened IAM policy is outside this guarantee.",
+        "Existing host common-role permission matches the approved role name within the organization, not an exact selected-account allowlist. Each target still needs explicit trust."
+      ]
+    }
+  ]
+}

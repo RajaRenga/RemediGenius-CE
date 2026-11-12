@@ -1,0 +1,31 @@
+# keys and local state never enter git
+.env
+.env.*
+!.env.EXAMPLE
+auth.json
+*.tfvars
+*.tfvars.json
+!example.tfvars
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform/
+__pycache__/
+*.pyc
+.pytest_cache/
+modules/lambda-kiosk/build/
+.venv/
+*.egg-info/
+/dist/
+build/
+/demo-board.html
+.rgce/
+playwright-output/
+.playwright-mcp/
+.claude/
+
+modules/approved-reader/build/
+modules/assurance-schedule/.build/
+
+# Terraform backend settings for the split stack (copy deploy/backend.hcl.example)
+deploy/backend.hcl

@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "RemediGenius: evidence to durable facts",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/data-lifecycle.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "dcc2abd7c69e3ab47acc27db58d24476bf04da54",
+      "link_mode": "local-only"
+    }
+  },
+  "stages": [
+    {
+      "label": "Live sources"
+    },
+    {
+      "label": "Collection"
+    },
+    {
+      "label": "Evidence + buffer"
+    },
+    {
+      "label": "Commit + publish"
+    },
+    {
+      "label": "Durable results"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "aws",
+      "type": "cloud",
+      "label": "AWS APIs",
+      "sublabel": "Source of live state",
+      "stage": 0,
+      "row": 1,
+      "sources": [
+        {
+          "path": "rgtriage/cli.py",
+          "line": 140,
+          "end_line": 160
+        }
+      ]
+    },
+    {
+      "id": "collect",
+      "type": "backend",
+      "label": "Collect + rank",
+      "sublabel": "Record scope and gaps",
+      "stage": 1,
+      "row": 1,
+      "sources": [
+        {
+          "path": "rgtriage/cli.py",
+          "line": 140,
+          "end_line": 189
+        }
+      ]
+    },
+    {
+      "id": "outbox",
+      "type": "database",
+      "label": "Local outbox",
+      "sublabel": "Pending work / cache",
+      "stage": 2,
+      "row": 1,
+      "sources": [
+        {
+          "path": "rgtriage/repository.py",
+          "line": 64,
+          "end_line": 117
+        }
+      ]
+    },
+    {
+      "id": "raw",
+      "type": "database",
+      "label": "Raw pages",
+      "sublabel": "Content-addressed JSON",
+      "stage": 2,
+      "row": 0,
+      "sources": [
+        {
+          "path": "docs/STORAGE.md",
+          "line": 11,
+          "end_line": 76
+        }
+      ]
+    },
+    {
+      "id": "commit",
+      "type": "backend",
+      "label": "Commit loop",
+      "sublabel": "Raw confirmed first",
+      "stage": 3,
+      "row": 1,
+      "sources": [
+        {
+          "path": "rgtriage/commit.py",
+          "line": 1,
+          "end_line": 9
+        }
+      ]
+    },
+    {
+      "id": "facts",
+      "type": "database",
+      "label": "Iceberg facts",
+      "sublabel": "S3 files + Glue catalog",
+      "stage": 4,
+      "row": 1,
+      "sources": [
+        {
+          "path": "docs/STORAGE.md",
+          "line": 11,
+          "end_line": 76
+        }
+      ]
+    },
+    {
+      "id": "exports",
+      "type": "backend",
+      "label": "Export writer",
+      "sublabel": "After durable commit",
+      "stage": 3,
+      "row": 3,
+      "sources": [
+        {
+          "path": "rgtriage/repository.py",
+          "line": 110,
+          "end_line": 125
+        }
+      ]
+    },
+    {
+      "id": "readable",
+      "type": "database",
+      "label": "Scan exports",
+      "sublabel": "HTML / JSON / manifest",
+      "stage": 4,
+      "row": 3,
+      "sources": [
+        {
+          "path": "rgtriage/exports.py",
+          "line": 13,
+          "end_line": 39
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "from": "aws",
+      "to": "collect",
+      "label": "Response pages"
+    },
+    {
+      "from": "collect",
+      "to": "raw",
+      "label": "Evidence"
+    },
+    {
+      "from": "collect",
+      "to": "outbox",
+      "label": "Facts + scope"
+    },
+    {
+      "from": "raw",
+      "to": "commit",
+      "label": "Confirmed refs"
+    },
+    {
+      "from": "outbox",
+      "to": "commit",
+      "label": "Pending batch"
+    },
+    {
+      "from": "commit",
+      "to": "facts",
+      "label": "Idempotent write"
+    },
+    {
+      "from": "commit",
+      "to": "exports",
+      "label": "Committed scan"
+    },
+    {
+      "from": "exports",
+      "to": "readable",
+      "label": "Pointer last"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "What remains in AWS",
+      "items": [
+        "No bulk copy of application objects, database contents or complete log archives.",
+        "Opt-in usage evidence retrieves bounded log/query results; it is not a log lake migration."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Why more than one representation",
+      "items": [
+        "Raw pages preserve evidence; Iceberg facts support history and recovery; exports make a scan human-readable.",
+        "Retries do not duplicate committed batches. Separate scans and date partitions can retain repeated observations."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Independent checkpoint path",
+      "items": [
+        "Desk checkpoints Hermes, configuration, GitHub and reviewed knowledge homes to S3, normally every 120 seconds.",
+        "These homes are not Iceberg facts. Uncheckpointed edits can be lost on abrupt instance loss."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Freshness is per scope",
+      "items": [
+        "A recent scan with denied or truncated coverage does not establish fresh evidence for that scope.",
+        "Raw retention defaults to 90 days; snapshot expiry does not delete historical fact rows."
+      ]
+    }
+  ]
+}

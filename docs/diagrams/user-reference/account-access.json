@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "RemediGenius: accounts, delegation and trust",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/account-access.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "dcc2abd7c69e3ab47acc27db58d24476bf04da54",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "operator",
+      "type": "external",
+      "label": "Deployment operator",
+      "sublabel": "Reviews IAM changes",
+      "pos": [
+        40,
+        70
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "Desk runtime",
+      "sublabel": "Actual caller identity",
+      "pos": [
+        40,
+        320
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "local",
+      "type": "security",
+      "label": "Local audit role",
+      "sublabel": "Own-account reads",
+      "pos": [
+        350,
+        320
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "security",
+      "label": "Admin reader role",
+      "sublabel": "Security administrator",
+      "pos": [
+        660,
+        320
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "member",
+      "type": "security",
+      "label": "Member read role",
+      "sublabel": "Target account",
+      "pos": [
+        970,
+        320
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "central",
+      "type": "cloud",
+      "label": "Central findings",
+      "sublabel": "Per service and region",
+      "pos": [
+        660,
+        560
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/MULTI-ACCOUNT.md",
+          "line": 1,
+          "end_line": 80
+        }
+      ]
+    },
+    {
+      "id": "resource",
+      "type": "cloud",
+      "label": "Resource evidence",
+      "sublabel": "Member account APIs",
+      "pos": [
+        970,
+        560
+      ],
+      "size": [
+        185,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/MULTI-ACCOUNT.md",
+          "line": 1,
+          "end_line": 80
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "runtime",
+      "to": "local",
+      "label": "Assume role"
+    },
+    {
+      "from": "runtime",
+      "to": "admin",
+      "label": "Assume role"
+    },
+    {
+      "from": "runtime",
+      "to": "member",
+      "label": "Assume role"
+    },
+    {
+      "from": "admin",
+      "to": "central",
+      "label": "Associated scopes"
+    },
+    {
+      "from": "member",
+      "to": "resource",
+      "label": "Investigate"
+    },
+    {
+      "from": "operator",
+      "to": "runtime",
+      "label": "Caller grant"
+    },
+    {
+      "from": "operator",
+      "to": "member",
+      "label": "Target trust"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Two permissions must agree",
+      "items": [
+        "The runtime may assume selected roles; each target role must trust that exact runtime identity.",
+        "SCPs, boundaries, explicit denies and expired credentials can still block a permitted-looking path."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Delegation is not universal access",
+      "items": [
+        "Security Hub, GuardDuty and Inspector have separate regional membership and aggregation rules.",
+        "Organization account inventory is not evidence that a security service covers those accounts."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Community onboarding",
+      "items": [
+        "Use onboarding --json from the actual runtime; prepare_access.py creates a private offline review packet.",
+        "The operator deploys reviewed roles. Verify account, region and service coverage as the runtime afterward."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Release scope",
+      "items": [
+        "This map describes the post-v0.9.0 development branch. The newer generator is not in published v0.9.0 assets.",
+        "Roles are logical: the local audit role can also be the administrator reader when it has the required access."
+      ]
+    }
+  ]
+}

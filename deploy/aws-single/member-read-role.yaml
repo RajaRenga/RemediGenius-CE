@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: RemediGenius Community Edition (RemediGenius-CE) member-account read-only role, trusted only by the RemediGenius-CE desk identity in the same organization.
+Parameters:
+  MemberRoleName:
+    Type: String
+    Default: RemediGeniusReadOnly
+    AllowedPattern: '[A-Za-z0-9+=,.@_-]{1,64}'
+    Description: Must match organization.member_role_name and the runtime caller policy.
+  TrustedPrincipalArn:
+    Type: String
+    AllowedPattern: 'arn:aws:iam::[0-9]{12}:(role|user)/.+'
+    Description: Identity that runs the desk. Spot - the instance role (Terraform output instance_role). Workstation - your IAM role or user. `rgtriage onboarding` prints the exact value.
+  OrganizationId:
+    Type: String
+    Default: ''
+    AllowedPattern: '(o-[a-z0-9]{10,32})?'
+    Description: Your AWS Organizations id. Leave empty only for an account outside an organization.
+Conditions:
+  InOrganization: !Not [!Equals [!Ref OrganizationId, '']]
+Resources:
+  MemberReadRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref MemberRoleName
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref TrustedPrincipalArn
+            Action: sts:AssumeRole
+            Condition: !If
+              - InOrganization
+              - StringEquals:
+                  aws:PrincipalOrgID: !Ref OrganizationId
+              - !Ref AWS::NoValue
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/SecurityAudit
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+      Policies:
+        - PolicyName: ReadOrganizationAndMemberCoverage
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource: '*'
+                Action:
+                  - organizations:DescribeOrganization
+                  - organizations:ListAccounts
+                  - organizations:ListDelegatedAdministrators
+                  - organizations:ListDelegatedServicesForAccount
+                  - securityhub:ListMembers
+                  - securityhub:ListFindingAggregators
+                  - securityhub:GetFindingAggregator
+                  - guardduty:ListDetectors
+                  - guardduty:ListMembers
+                  - inspector2:ListMembers
+                  - cloudformation:DescribeChangeSet
+        - PolicyName: EvaluatePoliciesWithoutChanges
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource: '*'
+                Action:
+                  - iam:SimulatePrincipalPolicy
+                  - iam:SimulateCustomPolicy
+                  - iam:GetContextKeysForPrincipalPolicy
+                  - iam:GetContextKeysForCustomPolicy
+                  - access-analyzer:CheckNoPublicAccess
+                  - access-analyzer:CheckAccessNotGranted
+                  - access-analyzer:CheckNoNewAccess
+                  - access-analyzer:ValidatePolicy
+        - PolicyName: NoApplicationBodiesOrCredentials
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Deny
+                Resource: '*'
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:BatchGetSecretValue
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - kms:Decrypt
+                  - sts:AssumeRole
+                  - iam:GenerateCredentialReport
+                  - iam:GenerateServiceLastAccessedDetails
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+Outputs:
+  RoleArn:
+    Value: !GetAtt MemberReadRole.Arn

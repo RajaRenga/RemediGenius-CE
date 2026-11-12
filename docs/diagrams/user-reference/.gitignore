@@ -1,0 +1,7 @@
+# Local Archify provenance contains workstation paths. Publish only sources and viewers.
+*.delivery.json
+*.delivery-pending.json
+*.finalize*.json
+*.browser-check.json
+*.visual-check*
+.archify-*

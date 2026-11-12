@@ -1,0 +1,14 @@
+name: rg-triage
+version: "0.9.1"
+description: AWS security triage desk. One read-only tool over the rgtriage CLI, the attention board at session start, /triage and /rate commands, and redacted execution traces for offline improvement.
+provides_tools:
+  - rg_triage
+  - rg_analytics
+provides_hooks:
+  - pre_llm_call
+  - pre_tool_call
+  - post_tool_call
+  - on_skill_lifecycle
+  - post_api_request
+  - post_llm_call
+  - transform_llm_output

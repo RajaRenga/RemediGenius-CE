@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "One investigation: who requests, assumes and reads",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/read-control-flow.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "98fb040ea582c9a56cd9fb0373c6bc5e75a87a2e",
+      "link_mode": "local-only"
+    }
+  },
+  "participants": [
+    {
+      "id": "human",
+      "type": "external",
+      "label": "Operator",
+      "sublabel": "Asks a question",
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        }
+      ]
+    },
+    {
+      "id": "hermes",
+      "type": "frontend",
+      "label": "Hermes",
+      "sublabel": "No AWS credentials",
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        },
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 333,
+          "end_line": 365
+        }
+      ]
+    },
+    {
+      "id": "desk",
+      "type": "backend",
+      "label": "Desk",
+      "sublabel": "EC2 host role",
+      "sources": [
+        {
+          "path": "rgtriage/aws.py",
+          "line": 12,
+          "end_line": 71
+        },
+        {
+          "path": "rgtriage/server.py",
+          "line": 19,
+          "end_line": 32
+        }
+      ]
+    },
+    {
+      "id": "sts",
+      "type": "security",
+      "label": "AWS STS",
+      "sublabel": "Existing IAM grants",
+      "sources": [
+        {
+          "path": "rgtriage/aws.py",
+          "line": 12,
+          "end_line": 71
+        },
+        {
+          "path": "deploy/aws-single/member-read-role.yaml",
+          "line": 25,
+          "end_line": 96
+        }
+      ]
+    },
+    {
+      "id": "target",
+      "type": "cloud",
+      "label": "Target AWS APIs",
+      "sublabel": "Chosen account/region",
+      "sources": [
+        {
+          "path": "rgtriage/aws.py",
+          "line": 12,
+          "end_line": 71
+        },
+        {
+          "path": "deploy/aws-single/member-read-role.yaml",
+          "line": 25,
+          "end_line": 96
+        }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "id": "step-0",
+      "from": "human",
+      "to": "hermes",
+      "y": 180,
+      "label": "Investigate a resource",
+      "variant": "default"
+    },
+    {
+      "id": "step-1",
+      "from": "hermes",
+      "to": "desk",
+      "y": 238,
+      "label": "Request guarded tool operation",
+      "variant": "emphasis"
+    },
+    {
+      "id": "step-2",
+      "from": "desk",
+      "to": "sts",
+      "y": 296,
+      "label": "AssumeRole: configured reader ARN",
+      "variant": "security"
+    },
+    {
+      "id": "step-3",
+      "from": "sts",
+      "to": "desk",
+      "y": 354,
+      "label": "Temporary reader credentials OR denial",
+      "variant": "return"
+    },
+    {
+      "id": "step-4",
+      "from": "desk",
+      "to": "target",
+      "y": 412,
+      "label": "If allowed: guarded read with reader credentials",
+      "variant": "emphasis"
+    },
+    {
+      "id": "step-5",
+      "from": "target",
+      "to": "desk",
+      "y": 470,
+      "label": "Finding/configuration OR explicit gap",
+      "variant": "return"
+    },
+    {
+      "id": "step-6",
+      "from": "desk",
+      "to": "hermes",
+      "y": 528,
+      "label": "Bounded evidence; no credentials",
+      "variant": "return"
+    },
+    {
+      "id": "step-7",
+      "from": "hermes",
+      "to": "human",
+      "y": 586,
+      "label": "Explain result and coverage limits",
+      "variant": "return"
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 630,
+      "label": "Runtime read path; no IAM changes"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Before step 3: deployment is separate",
+      "items": [
+        "Human deployment credentials create roles through Terraform/CloudFormation after approval. They are never supplied to Hermes.",
+        "STS does not create a role or modify trust. It evaluates existing authorization and returns temporary credentials or AccessDenied."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "No credential escalation chain",
+      "items": [
+        "Every target assumption starts from the host identity, not the local audit identity. Reader roles explicitly deny onward AssumeRole.",
+        "The desk keeps credentials in its own process. Hermes receives the result, not access keys or session tokens."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "What happens after a proposed fix",
+      "items": [
+        "A human-approved triage decision updates CE records only. IaC proposals use an isolated validator.",
+        "The operator deploys infrastructure through their existing delivery process; chat approval cannot grant IAM access."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Scope",
+      "items": [
+        "This illustrates the containerized AWS deployment and explicitly provisioned cross-account roles. The diagram itself does not deploy IAM permissions.",
+        "Managed MCP can transport an investigation request; the desk still owns guarded credentials. Collection uses the direct SDK."
+      ]
+    }
+  ]
+}

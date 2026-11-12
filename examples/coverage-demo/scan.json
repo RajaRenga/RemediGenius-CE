@@ -1,0 +1,133 @@
+{
+  "profile": {
+    "name": "SYNTHETIC coverage demo - no AWS observations"
+  },
+  "scanned_at": "2026-01-01T00:00:00Z",
+  "coverage": [
+    {
+      "account": "Cedar",
+      "region": "us-east-1",
+      "source": "securityhub",
+      "status": "ok",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Cedar",
+      "region": "us-east-1",
+      "source": "guardduty",
+      "status": "not_enabled",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Cedar",
+      "region": "eu-central-1",
+      "source": "securityhub",
+      "status": "denied",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Cedar",
+      "region": "eu-central-1",
+      "source": "guardduty",
+      "status": "denied",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Maple",
+      "region": "us-east-1",
+      "source": "securityhub",
+      "status": "ok",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation.",
+      "truncated": true
+    },
+    {
+      "account": "Maple",
+      "region": "us-east-1",
+      "source": "guardduty",
+      "status": "ok",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Maple",
+      "region": "eu-central-1",
+      "source": "securityhub",
+      "status": "not_enabled",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Maple",
+      "region": "eu-central-1",
+      "source": "guardduty",
+      "status": "ok",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Birch",
+      "region": "us-east-1",
+      "source": "securityhub",
+      "status": "not_enabled",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Birch",
+      "region": "us-east-1",
+      "source": "guardduty",
+      "status": "not_enabled",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Birch",
+      "region": "eu-central-1",
+      "source": "securityhub",
+      "status": "not_enabled",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Birch",
+      "region": "eu-central-1",
+      "source": "guardduty",
+      "status": "error",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Cedar",
+      "region": "us-east-1",
+      "source": "health",
+      "status": "not_available",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Maple",
+      "region": "us-east-1",
+      "source": "health",
+      "status": "not_available",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    },
+    {
+      "account": "Birch",
+      "region": "us-east-1",
+      "source": "health",
+      "status": "not_available",
+      "count": 0,
+      "note": "Synthetic demonstration data; not an AWS observation."
+    }
+  ],
+  "findings": [],
+  "issues": [],
+  "changes": {},
+  "fixes": []
+}

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "RemediGenius: infrastructure and ownership",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/infrastructure.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "dcc2abd7c69e3ab47acc27db58d24476bf04da54",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "operator",
+      "type": "external",
+      "label": "Operator",
+      "sublabel": "SSM tunnel",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/README.md",
+          "line": 60,
+          "end_line": 68
+        }
+      ]
+    },
+    {
+      "id": "hermes",
+      "type": "frontend",
+      "label": "Hermes",
+      "sublabel": "Pinned agent container",
+      "pos": [
+        310,
+        280
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        }
+      ]
+    },
+    {
+      "id": "desk",
+      "type": "backend",
+      "label": "Desk service",
+      "sublabel": "Host Python runtime",
+      "pos": [
+        610,
+        280
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        }
+      ]
+    },
+    {
+      "id": "aws",
+      "type": "cloud",
+      "label": "AWS readers",
+      "sublabel": "Audit + member roles",
+      "pos": [
+        930,
+        280
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/ACCESS-QUICKSTART.md",
+          "line": 12,
+          "end_line": 108
+        }
+      ]
+    },
+    {
+      "id": "model",
+      "type": "external",
+      "label": "Model endpoint",
+      "sublabel": "Operator selects provider",
+      "pos": [
+        310,
+        65
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/DATA-FLOW.md",
+          "line": 1,
+          "end_line": 26
+        }
+      ]
+    },
+    {
+      "id": "validator",
+      "type": "security",
+      "label": "IaC validation",
+      "sublabel": "Separate user; no credentials",
+      "pos": [
+        610,
+        65
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 497,
+          "end_line": 590
+        }
+      ]
+    },
+    {
+      "id": "durable",
+      "type": "database",
+      "label": "S3 + Glue",
+      "sublabel": "Evidence, facts, checkpoints",
+      "pos": [
+        610,
+        510
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/STORAGE.md",
+          "line": 11,
+          "end_line": 76
+        }
+      ]
+    },
+    {
+      "id": "analytics",
+      "type": "backend",
+      "label": "Athena reports",
+      "sublabel": "Isolated query runtime",
+      "pos": [
+        930,
+        510
+      ],
+      "size": [
+        175,
+        70
+      ],
+      "sources": [
+        {
+          "path": "deploy/aws-single/host.py",
+          "line": 270,
+          "end_line": 302
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "operator",
+      "to": "hermes",
+      "label": "Private UI"
+    },
+    {
+      "from": "hermes",
+      "to": "desk",
+      "label": "Unix socket"
+    },
+    {
+      "from": "desk",
+      "to": "aws",
+      "label": "Guarded reads"
+    },
+    {
+      "from": "hermes",
+      "to": "model",
+      "label": "Inference"
+    },
+    {
+      "from": "desk",
+      "to": "validator",
+      "label": "Scratch checks"
+    },
+    {
+      "from": "desk",
+      "to": "durable",
+      "label": "Persist / restore"
+    },
+    {
+      "from": "desk",
+      "to": "analytics",
+      "label": "Fixed reports"
+    },
+    {
+      "from": "analytics",
+      "to": "durable",
+      "label": "Query facts"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Replaceable compute",
+      "items": [
+        "One active writer per namespace. EC2 is disposable; S3/Glue survive replacement.",
+        "Container isolation is shown. Native Hermes uses a local subprocess and shares its credential environment."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Operator responsibilities",
+      "items": [
+        "Provide outbound connectivity, model access, reader roles and retention choices.",
+        "The provisioning identity stays outside the runtime. No public dashboard or agent API is required."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Scope",
+      "items": [
+        "Standard AWS deployment; connectors are logical dependencies, not separate EC2 instances.",
+        "Optional GitHub and detailed account routing are in the companion guide. Post-v0.9.0 access changes are marked there."
+      ]
+    }
+  ]
+}

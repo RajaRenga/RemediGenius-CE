@@ -1,0 +1,453 @@
+# Changelog — RemediGenius Community Edition (RemediGenius-CE)
+
+## v0.9.1 — prepared for release
+
+- Pin Hermes 0.23.1 by immutable Docker digest and require that version for native profile adoption.
+  Enable its native held-output transformation so draft and interim replies do not precede reviewed responses.
+  Keep the desk, AWS roles and S3/Iceberg architecture unchanged.
+- Load the dashboard Board through Hermes's authenticated profile-aware SDK and explicitly enable its backend.
+  Document gateway-owned chat and Docker supervision for isolated native API workflows.
+
+- Restore complete committed findings, issue grouping and coverage on replacement compute without a rescan.
+  Publish a verified generation descriptor in Iceberg last; regenerate and verify the dashboard before serving.
+  Keep the existing S3/Iceberg architecture and protect pinned input snapshots during built-in maintenance.
+- Migrate compatible legacy exports after verification. Display missing legacy fix/comparison metadata as unknown;
+  block incomplete recovery instead of inventing an empty healthy view. Refuse to publish uncommitted scans.
+- Provide exact coverage through `/triage coverage` and strengthen Hermes evidence guidance. Free-form model prose
+  can still misstate scope; use the deterministic dashboard/report for exact statuses and counts.
+- Improve reusable multi-account reader-role onboarding and include read-only CloudFormation change-set access.
+- Upgrade every shipped PyArrow pin to 23.0.1; retain PyIceberg 0.12.0. Include Windows timezone data for timestamp
+  reads. Existing Arrow 19-written data remains readable without a schema migration.
+- Expand CE architecture, recovery and acceptance documentation. Public walkthrough media uses synthetic data.
+- Normalize AWS SDK values before dashboard fingerprinting so a committed scan and its rendered view agree.
+- Require credential-specific containment guidance and independent verification evidence. Session expiry,
+  finding disappearance and an empty installation do not establish remediation. Keep operator approval and
+  read-only execution boundaries explicit.
+- Use Hermes's native final-output transform for exact coverage and reviewed threat-fix procedures. Preserve
+  the read-only desk and existing agent runtime; disable draft streaming/reasoning display in the CE profile.
+- Document standalone, organization and delegated-account onboarding without fixed account/region counts,
+  and distinguish a fresh installation from restoring existing S3 state.
+- Initialize durable storage during existing-Hermes installation, before its first subprocess-only scan;
+  reuse the same recovery path as the desk service and preserve an existing committed view.
+
+Validation and remaining limits: release validation.
+Candidate runtime and exact artifact results are recorded separately from publication. Consult the latest
+acceptance entry for the tested source, remaining limits and release status.
+
+## v0.9.0 — community release candidate
+
+- Existing Hermes adoption checks the exact 0.21.7 runtime, retains model settings, backs up managed files,
+  and enables durable local storage. The pinned container remains the alternative for other Hermes versions.
+- Committed scans publish browsable HTML/JSON exports with hashes, source coverage, snapshot IDs and raw
+  references. Freshness is reported separately from durable storage health; S3/Glue remain authoritative.
+- Fixed OCSF epoch-millisecond conversion into typed Iceberg timestamps. Newly written facts use correct dates;
+  old historical rows are not rewritten. Prevented uncommitted scans from advancing current materializations.
+- Tightened real-agent briefing, investigation and validation-failure behavior from local model sessions.
+  Native Hermes HTTP remains optional; no custom agent server or automatically exposed listener is added.
+- Preserves the development branch's bounded relationship/campaign/receipt work and the v0.8.1 runtime,
+  analytics and checkpoint fixes. Existing table schemas and storage implementation pins remain unchanged;
+  the preserved development work adds flow-log, trail-event and execution-receipt tables.
+
+Candidate validation and limits: release validation.
+
+## v0.8.1 — 2026-11-02
+
+**Fix: the split Terraform stack boots v0.8.x again.**
+
+- `deploy/aws-static` now owns the analytics role and Athena workgroup, and `deploy/aws-private` passes their ARN and
+  name into the boot config. A Spot launched from the split stack no longer stops at
+  `KeyError: 'analytics_role_arn'` and the MCP/analytics defaults configure normally.
+- The one-apply community install (`deploy/aws-single`) is unchanged; it already created these resources.
+
+Validation: the failure was reproduced on a real Spot first boot and the fix verified after instance replacement.
+The community one-apply path is not changed by this release.
+
+## v0.8.0 — 2026-11-02
+
+**The MCP release: scoped AWS investigation, historical analytics and reusable knowledge connections.**
+
+- Fix fresh-host AWS MCP installation by resolving the desk and extension against one tested dependency snapshot;
+  invalidate older baked runtime markers when that snapshot changes.
+- Restore the enabled shipped Terraform Registry runtime after replacement, while preserving custom/disabled connections.
+- Checkpoint the approved OKF bundle separately from the rebuildable desk cache. Existing installations need a
+  knowledge checkpoint before replacement; see [upgrade instructions](docs/UPGRADING.md).
+- Strengthen the Spot gate with real managed AWS and four Athena report calls.
+- Allow Athena workgroup cleanup when the operator explicitly selects `delete_data_on_destroy` for a disposable stack.
+
+- Reuse native Hermes connections for AWS Knowledge and vendor skills, Terraform Registry, DeepWiki and
+  document-source onboarding, with task-specific routing and reviewed OKF ingestion.
+- Make managed AWS MCP the default EC2 investigation path behind the existing desk guard and explicit audit roles.
+- Add bounded Athena/Data Processing MCP historical reports through the deferred `rg_analytics` tool and
+  on-demand skill. Preserve current queue behavior and committed-batch history for individual/as-of evidence.
+- Measure context in real chat and correct coverage interpretation: collection checks are not days, repeated
+  observations are not distinct issues, and failed analytics is unavailable rather than zero.
+
+Validation and documented limits: release validation.
+Clean provisioning on plain Amazon Linux, packaged instance replacement and report recovery passed.
+The merged feature build passed 60 host/browser checks, followed by real UI chat, native connector onboarding,
+PDF import, AI drafting, human approval and cited OKF retrieval. Disposable Terraform teardown also passed.
+Authenticated vendor document sources and a new baked AMI are not certified. The architecture diagram and
+native Hermes API/MCP options are documented.
+
+## v0.7.0 — 2026-10-30
+
+**A board that lives in the chat, a page for the meeting, and a Dashboard that can refresh itself.** v0.6.0 made the
+remediation chain honest; this release makes the queue readable. One snapshot per scan is rendered three ways — a card
+in chat, a self-contained page, and a dashboard tab — and every rendering says when it was true.
+
+**New**
+- **Board card in chat.** A greeting produces one 46-column card: state and age, P1–P4 counts with bars, what changed,
+  coverage read over known, fixes in flight and one next action. The format lives in `SOUL.md`; `rgtriage board`
+  renders the exact same card in code. No posture score: P1/P2, verified fixes and coverage are the facts.
+- **Board page.** `rgtriage board [--html PATH]` writes a self-contained, print-ready page: KPI tiles, severity
+  distribution, needs-a-decision, verified fixes and the coverage matrix. Every scan writes `board.html` too. It is
+  static on purpose — the header carries the snapshot id and scan time, the footer says it is a snapshot.
+- **Dashboard tab (`rg-board`).** The page is served at `/board` behind the dashboard login, with the scan age and a
+  **Refresh now** button. Refresh asks the desk over its socket for a real `scan --quiet` and refuses to report success
+  unless `scanned_at` moved; the open tab polls `/status` every 60 seconds so a scheduled scan also swaps the page.
+- **Coverage is read over known.** One readable account beside three not covered is `1/4`, never `1/1`, on both the
+  card and the page. The gap line names the unscanned region and the unread accounts.
+
+**Changed**
+- `rgtriage scan` now writes `board.html` beside `report.html` and `status.json`.
+- `rg-triage` briefings defer to the board card; the long digest remains for `/triage` and `rgtriage digest`.
+- `deploy/aws-single` and `tools/workstation.py` install the Dashboard tab and write its `local.json` (socket, board,
+  status), so a fresh stack boots with it.
+- The release gate gains a browser check for the Dashboard tab, accepting the explicit "no board yet" state before the
+  first scan.
+
+**Validation**
+- **743 passed, 7 skipped** offline on Windows.
+- The card, page and tab were exercised on the private stack: the card matches the digest, the page shows 1/4 accounts
+  and strips score arithmetic, and **Refresh now** moved the snapshot from 11:52 to 13:09:45 UTC (11 P1, one new).
+  A manual refresh took about 4 minutes against scheduled runs of about 45 seconds.
+- **56 of 56** Spot checks on a fresh stack built from this release's own Terraform, with the boot asserted to use
+  the baked archive: image `ami-0b6510b5add4cd83a`, archive `055841aa…`, cloud-init 208 s, 20 resources created and
+  destroyed. See docs/RELEASE-VALIDATION.md.
+
+## v0.6.0 — 2026-10-30
+
+**A baked host image, a deployment split, and evidence-backed remediation.** The first boot spent about 300 seconds
+installing what never changes; a release image now carries the runtime and the pinned Hermes image, and the deployment’s
+stack separates durable infrastructure from disposable compute. On top of that storage layer, remediation is now a
+chain of facts: lineage, campaigns, receipts, proofs and attested counts, each one refusing to claim more than its
+evidence supports.
+
+**New**
+- **`deploy/ami`** builds one host image per release with EC2 Image Builder: docker, the pinned wheel set in
+  `/opt/rgtriage/venv`, Terraform and tflint, and `nousresearch/hermes-agent` pre-pulled by digest. The release archive
+  is baked too and re-verified at boot, so a first boot becomes config, restore and systemd instead of downloads.
+- **`deploy/aws-static`** keeps the bucket, Glue database and both IAM roles; **`deploy/aws-private`** keeps only the
+  security group, launch template and Spot ASG. State lives in an S3 bucket from **`deploy/bootstrap`** with native
+  lock files, so there is no DynamoDB table to run.
+- **`tools/spot_cycle.py up|down|status`** parks and starts the private stack in minutes; the bucket, Glue database and
+  roles stay put, and no instance is left running after `down`.
+- `deploy/aws-single` gains an optional `ami_id`: empty keeps today's install-at-boot behaviour, so the community path
+  and the release gate are unchanged.
+- **Deployment receipts (CE-17).** PR, merge, build, deploy and verification observations from existing CI/CD are recorded
+  as separate facts in `deployment_receipts`, with a producer allow-list, idempotent identity and quarantine for a
+  changed payload. A merged PR or a green build never marks a target deployed or verified; see
+  docs/RECEIPTS.md.
+
+- **Operational relationship graph (CE-19).** Typed, scoped edges between images, packages, workloads, findings,
+  plans, deployments and owners are stored in `relationships` with their validity, evidence and how they were
+  learned. Only `observed` evidence or an approved derivation is authoritative; hypotheses are stored but can
+  never authorize closure or execution, retractions keep history, and an interrupted rebuild leaves the previous
+  graph active. See [docs/GRAPH.md](docs/GRAPH.md).
+
+- **Target-bound verification (CE-18).** A proof now names the installation, account, region, resource generation,
+  artifact digest and rule version it is about, and fails closed on a mismatched account, a truncated read, stale
+  evidence or unaccepted clock skew. Provider resolution is a separate event, policy decides whether a targeted
+  check may close, and every attempt is stored with its verifier; see docs/VERIFICATION.md.
+
+- **Container and workload lineage (CE-20).** Images are identified by digest (tags are labels), packages carry the
+  layer they were installed in (`base`, `application`, `unknown`), and workload revisions name the image they
+  actually run. `context.image.base` no longer holds the runtime platform: a base image is only claimed when its
+  digest was observed. Lineage becomes `derived` graph edges; see [docs/LINEAGE.md](docs/LINEAGE.md).
+
+- **Shared-cause campaigns and partial rollout (CE-21).** A candidate campaign is derived from proven lineage: a
+  workload joins only when its runtime image digest is the campaign image, and every exclusion carries a readable
+  reason (another digest, a tag, the application layer, a name-only match, an uninspected account). The approved plan
+  names one immutable artifact, the frozen membership, its steps, stop conditions and the per-target proof. A campaign
+  patch or tag update closes nothing; a rollback reopens the target without erasing history; autoscaling onto an old
+  artifact is rejected; a proof without a deployment is counted separately. See [docs/CAMPAIGNS.md](docs/CAMPAIGNS.md).
+
+- **Attested campaign counts (CE-22).** `campaign_verification_summary` is one reviewed computation executed over a
+  pinned input snapshot, with the code digest, contract digest, typed parameters, knowledge version and output bound
+  into a receipt in `computation_receipts`. Re-deriving from the retained rows fails closed on changed code or contract,
+  another membership version, an incomplete evidence set, an out-of-scope account or a modified output, and a failed
+  attestation is kept as its own result. Only an attested receipt may be quoted as a computed count; see
+  docs/ATTESTATION.md.
+
+- **Timeline, campaign and graph views (CE-23).** Observed, applied, verified and ingested times are separate fields, a
+  late ingestion is labelled, membership is paged by ordinal over the full table rather than the board preview, and a
+  graph edge is labelled `observed`, `derived` or `hypothesis`. Counts are authoritative only from an attested receipt.
+  Stale or partial answers report their cutoff and say they are not current operational state, and a hypothesis blocks
+  trusted actions. New `rgtriage campaign` command and an `action=campaign` surface for the agent; see
+  [docs/VIEWS.md](docs/VIEWS.md).
+
+**Changed**
+- `host.py --bake` prepares the image with the same code the instance runs; `/opt/rgtriage/.baked` records the version,
+  the Hermes digest and the wheel pins. A boot refuses an image baked for a different digest, and re-installs wheels only
+  when the release pins a different set.
+
+## v0.5.0
+
+**The Spot instance is disposable; S3 and Iceberg hold everything that matters.** This is a fresh-install release:
+the v0.4 JSON desk state is detected and refused, not imported. The Hermes home, `triage.yaml` and the OKF bundle keep
+their existing path. See [docs/STORAGE.md](docs/STORAGE.md), [docs/SCHEMA.md](docs/SCHEMA.md),
+[docs/RECOVERY.md](docs/RECOVERY.md) and [docs/UPGRADING.md](docs/UPGRADING.md).
+
+**New**
+- **Raw evidence first.** Every collected AWS response page is written once to S3 under `raw/`, content-addressed by
+  SHA-256 and write-once. A fact is not committed unless its raw object is confirmed. A bounded local buffer (256 MB)
+  holds pages through a storage outage and collection pauses visibly rather than dropping evidence.
+- **Findings in OCSF 1.9.0.** Inspector, GuardDuty, IAM Access Analyzer, AWS Config and Security Hub map to reviewed
+  OCSF classes; Security Hub v2 exposure findings keep AWS's own record. Desk fields live in a documented CE extension;
+  unmapped source fields stay in the raw object and the extension.
+- **Apache Iceberg as the system of record.** PyIceberg runs in the desk process against a Glue catalog and S3
+  warehouse on Spot, or a SQL catalog and folder on the workstation. Findings, scans, coverage, decisions, verification
+  attempts, fix events, GitHub operations, signals and current-state tables have versioned schemas. Table maintenance
+  (compaction, snapshot expiry, orphan cleanup) runs in-process; no Athena job, Spark or always-on service is required.
+- **A local SQLite cache and commit outbox.** Facts, views and outbox rows commit in one local transaction; the cache is
+  rebuildable. A controller lock keeps one active desk per storage namespace. Conflicting event-ID reuse is
+  quarantined instead of resolved by timestamp.
+- **Idempotent commit loop.** One Iceberg commit per completed scan, plus immediate commits for decisions and GitHub
+  intents/results. Batch IDs and content hashes in snapshot summaries make a commit before a lost acknowledgement
+  non-duplicating. A decision is acknowledged only after its commit; otherwise the desk says *saved locally, not yet
+  durable*. A GitHub intent is committed before any call.
+- **Recovery on new compute.** A replacement instance reads the installation ID from configuration, verifies the
+  catalog, rebuilds the cache from current-state tables, starts a new recovery epoch and re-runs unfinished scans. A
+  merged pull request found while the desk was down is reconciled read-only; no automatic numbered follow-up is made.
+- **`rgtriage history`** (and the agent's `history` action): current facts, committed history at an `--as-of` snapshot,
+  finding episodes with `--timeline`, and evidence-id resolution. Every answer carries the commit watermark,
+  not-yet-durable counts and the evidence-set manifest; incomplete coverage is labelled with its blind spots.
+- **Finding episodes** keep observed and ingested time apart, record applied time only from an explicit receipt, close
+  only on a complete target-bound passing proof, keep the first closure across repeated proofs, and create a recurrence
+  for newer positive evidence. Suppression, accepted risk, false positives and manual resolution never become
+  remediation.
+- **Lifecycle correctness fixes:** truncated/capped/denied reads cannot verify or resolve a finding; unknown visibility
+  preserves verified history; a proof no longer falls back to another configured account; failed and inconclusive
+  attempts persist even when the lifecycle state does not change.
+- **Resumable collection:** source/account/region/filter scopes, page counts and outcomes live in the cache; raw pages
+  are recorded as they arrive; one failed source keeps its partial coverage without erasing the others.
+- **Spot deployment:** adds the scoped Glue database, `raw/` and `warehouse/` bucket prefixes, scoped IAM, a raw
+  retention setting (default 90 days), and a small `/data/rgconfig` home for `triage.yaml`. PyIceberg and PyArrow are
+  installed in the desk runtime.
+- **Storage health:** `rgtriage doctor` and the service log report installation, epoch, commit watermark and age,
+  outbox, not-yet-durable decisions, raw backlog, last maintenance, checkpoint age and unresolved operations.
+  `rgtriage maintain [--dry-run]` runs table maintenance for operators.
+
+**Removed**
+- The v0.4 JSON desk state (`latest.json`, `decisions.json`, `history/`) is no longer written or imported. An existing
+  v0.4 desk state on a fresh cache stops the desk with instructions to move or delete it. Whole-home desk checkpoints
+  are gone; only the Hermes home, configuration and GitHub configuration are checkpointed.
+
+**Not in this release**
+- CE-16…CE-23 (campaigns, lineage, deployment receipts, attestations and the evidence-aware graph) remain for a later
+  release. Their query handlers return `unsupported` rather than fabricated data.
+
+**Validation:** 624 tests passed and 7 skipped offline; a fresh AWS Spot stack passed 49 of 49 host, storage, boundary,
+dashboard and chat checks, then was destroyed. After the Glue grant was tightened (no catalog administration or ETL), a
+second fresh stack passed all 45 host/storage/boundary checks, and a third fresh stack passed all 49 checks from the
+merged release commit before publication. Details, including the defects these runs found and the remaining gaps, are in
+docs/RELEASE-VALIDATION.md. A local-profile pass is not a claim about AWS durability or
+cost.
+
+## v0.4.0
+
+**New**
+- **Fixes as pull requests (Spot).** Connect a GitHub repository and the agent can turn a validated IaC fix into **one pull
+  request** from a `feature/remedigenius/...` branch into your configured development branch (`rg_triage action=github`,
+  operations `status`, `publish`, `pr_status`, `refresh`). It never merges, approves, force-pushes, deletes, touches `main` or
+  any production or release branch, or changes protections: those requests do not exist in the desk, and your GitHub
+  rulesets and a human review are the independent second layer. See [docs/GITHUB.md](docs/GITHUB.md).
+- **Per-installation GitHub App.** `rgtriage github connect` creates a GitHub App for your installation through GitHub's App
+  Manifest flow (one click on github.com, no secret to paste). You select only the repository it may use; its key stays in a
+  desk-only folder that is not mounted into the agent container, tokens last one hour and are narrowed to that repository.
+  Revoke at any time: `rgtriage github disconnect`, or uninstall the App on GitHub.
+- **Writes are off until GitHub shows the protections.** Login alone never enables PRs: the desk reads the effective rules on the
+  development and production branches (reviewed PR required, no force push or delete) and stays in read/proposal mode, with
+  the exact remedy, until they are there. Admin-applied rulesets are in `deploy/github`.
+- **Deterministic checks before any push**, on a copy of the repository with no credentials: `terraform fmt/validate`,
+  `tflint`, `cfn-lint`, YAML and JSON parsing. A failed check pushes nothing; a tool that is missing is reported as *not
+  validated*.
+- **The desk keeps its view of your repository current.** `rgtriage github refresh` (or "I updated the repo, refresh it")
+  mirrors the development branch read-only for `fix` (secrets, state files and `.tfvars` are left out) and writes a
+  **Repository** page into the Knowledge tab. Published PRs are linked to the fix record automatically.
+- `rgdesk`: operators run the desk CLI as the desk user over SSM (`sudo rgdesk github status`).
+- **A GitHub tab in the web console** (Spot): Connect GitHub (two clicks on github.com, then back to the page), choose the repository, development
+  branch and human reviewers from drop-downs, see each protection as present or missing with the next step, and Check, Refresh, Change,
+  Reconnect and Disconnect, all from the browser. The agent cannot use it: the setup operations need a secret regenerated every boot that only
+  the dashboard backend reads, and the agent now tells people to use the tab when GitHub is not connected.
+- **One guided setup command**: `python tools/github_connect_spot.py --stack <name>` runs `sudo rgdesk github setup`: prerequisites,
+  App creation and installation (your two clicks on github.com), repository, development branch and reviewers, and a protection report with
+  the next step. It resumes if interrupted; `connect` self-heals after an uninstall or a deleted App.
+- **Untrusted checking tools run away from the key.** A separate validation service (its own OS user, no access to the GitHub key or
+  policy, blocked from the instance credentials) runs Terraform, tflint and cfn-lint for both `publish` and the agent's `validate`
+  command. `validate` now accepts only proposals from the proposals folder, modules from approved IaC folders, and destinations inside its
+  scratch copy; `fix` is never pointed at the key folder.
+- **Publishing is idempotent and exact**: the existing PR and branch are checked first (a PR retargeted away from the development branch
+  stops the publish before anything changes); the validated tree is exactly the tree that is committed; a retry after a partial failure
+  completes the missing PR without a second commit; the branch and PR belong to the finding, not the title (closed PRs are replaced,
+  merged ones start a `-r2` follow-up); user and team reviewers are separate allowlists.
+- Refreshing the repository knowledge page keeps the owner, notes and review history a person added, and marks the page stale when the
+  repository, branch or kind of IaC changes.
+
+**Removed**
+- **The community Hermes WebUI** (`nesquena/hermes-webui`) and everything that existed only for it: the `webui` Terraform variable, the
+  `-WebUI` / `--webui` flags of `tools/open-remedigenius`, the settings that exposed the agent's API server to it (host and port setting, the shared key, the firewall rule), and the
+  generated wiki view (`RGTRIAGE_WIKI_DIR`, Insights, LLM Wiki). Reason: the dashboard is the one place where Knowledge, Improve, Kanban and GitHub live, so a
+  second UI could never show the whole picture, and the WebUI was a fast-moving third-party image to re-pin and re-test every release. Chat is the
+  dashboard's Chat tab. Hermes still runs its own API server, on loopback inside the agent container only: nothing is published for it and nothing outside can reach it. On upgrade the boot removes the old service, container, volume, shared API key and wiki view; `/data/hermes/webui` is left for you to
+  delete. See [docs/UPGRADING.md](docs/UPGRADING.md). If your tfvars sets `webui = ...`, delete that line.
+
+**Changed**
+- Spot installs pinned `tflint` 0.63.1 and `cfn-lint` 1.57.2 for the checks above; the desk service can write `/data/iac`
+  (the mirror) and its own GitHub folder, which is part of the private durable checkpoint.
+- **The security-watch alert job no longer dies on a brief desk outage.** It failed once with "No such file or directory" on the desk's socket and
+  showed as an error until its next run. The job now retries for 90 seconds (the desk is unreachable for about 3 seconds while it restarts), and
+  prints a one-line reason instead of a traceback if it still cannot connect, including when it is run somewhere the socket folder is not mounted
+  (the removed WebUI could run it, and did not have the mount). The agent container now also waits (up to a minute) for the desk's socket before
+  it starts, so a job that is due at boot cannot beat the desk.
+- The `rg-iac-fix` skill gains one step (open a PR). Steps 1 to 8 and the protected rules are unchanged.
+
+**Not in this release**
+- GitHub on the Docker workstation and existing-Hermes installs (the key cannot be kept away from the agent there): it shows
+  `Blocked` with the reason. One repository per installation.
+
+## v0.3.3
+
+**New**
+- **Kanban cards for people.** Ask the desk to open a task for a finding and it files a card on the Hermes Kanban board
+  (`rg_triage action=card`, CLI `rgtriage card REF`). The card holds the exact AWS CLI fix commands (for security
+  groups, revoke commands for the rule ids that are open to the internet, from a live read-only call; S3 public access,
+  SSM document sharing, IMDSv2, EBS default encryption, patching), a paste-into-chat prompt for a Terraform,
+  CloudFormation, CDK or Pulumi fix, and the command that proves the fix. Threat and root findings get investigation
+  or console steps instead of commands. The desk never runs the commands.
+- **Cards never start agents.** Cards are filed in triage with no assignee; the Hermes Kanban dispatcher and automatic
+  task splitting are turned off on Spot and the Docker workstation (`kanban.dispatch_in_gateway: false`,
+  `kanban.auto_decompose: false`), and the agent has no Kanban toolset of its own. Filing the same change twice returns
+  the existing card.
+- **Tracking.** When a fix record moves (decided, pr, deployed, verified, reopened, stalled) the desk adds a comment to
+  its card; `action=cards` lists the desk's cards and their fix status.
+- `tools/spot_release_test.py`: test a published release on a throwaway Spot stack with one command (see
+  `deploy/aws-single/README.md`).
+
+## v0.3.2
+
+**Fixed**
+- The dashboard **Knowledge** tab rendered blank (React error #310) in v0.3.0 and v0.3.1: the Data & model notice
+  added a hook after the Overview's loading return. Hooks now run before it.
+- `SHA256SUMS` and `RELEASE.json` are written with LF line endings, so `sha256sum -c SHA256SUMS` works on Linux and
+  macOS. The checksum files on the v0.3.0 and v0.3.1 releases were replaced with LF copies; the hashes are unchanged.
+
+## v0.3.1
+
+**New**
+- **Knowledge in the Hermes WebUI.** On Spot, the WebUI's Insights → LLM Wiki card shows the knowledge bundle (pages,
+  imported references, last update, last approver) and "Browse wiki" lists it. It is a read-only view regenerated after
+  every scan; knowledge is still added and approved in the dashboard Knowledge tab ([docs/KNOWLEDGE.md](docs/KNOWLEDGE.md)).
+
+**Fixed**
+- The Hermes profile `config.yaml` now carries the schema version of the pinned Hermes image. Without it Hermes logged
+  "config migration skipped" at boot and would not migrate the file on a Hermes upgrade. Existing deployments keep their
+  operator-owned `config.yaml`; the warning there is harmless.
+
+## v0.3.0 — Security Desk
+
+RemediGenius-CE is rebuilt around one idea: once an AWS account is connected, the right findings reach you first,
+explained, with the code change that fixes them.
+
+**New**
+- **One Hermes profile, `remedigenius`.** Every conversation opens with the attention board: P1 first, what changed,
+  blind spots, one next step. `/triage` shows it without a model call.
+- **Desk service (`rgtriage`)** collects Security Hub, GuardDuty, Inspector, IAM Access Analyzer, AWS Config,
+  CloudWatch alarms and AWS Health across accounts and regions. Every call is read-only, enforced by a botocore guard
+  even with admin credentials. Coverage gaps are reported as blind spots.
+- **Explainable prioritization** (P1–P4): severity, active threats, root use, exposure, exploits and EPSS, detection
+  gaps, toxic combinations, business criticality, goals. Findings that share a fix become one issue. Access Analyzer
+  severity reflects who is trusted (for example, GitHub OIDC without a repository condition is HIGH).
+- **Scale:** Inspector totals and fix units (AMI, ECR repository, Lambda, package) come from aggregation APIs. Detail
+  is read only for what can rank high, Security Hub is not read twice, and storage is bounded. 40,000 Inspector findings
+  scan in about a second in the scale test.
+- **Investigations** with bounded read-only AWS calls; the agent states what it could not see.
+- **IaC fixes:** locates the Terraform, CloudFormation or CDK that deployed a resource (evidence-ranked), proposes a
+  diff, and runs `terraform validate` on a scratch copy. Remediation playbooks for common controls and threats.
+- **Decisions** (acknowledged … resolved) go through Hermes's approval prompt.
+- **Multiple accounts, onboarded automatically:** at every scan the desk detects its organization, its Security Hub /
+  GuardDuty / Inspector delegated-administrator rights, and every account where the `RemediGeniusReadOnly` role can be
+  assumed. Those accounts are read from then on, with their existing findings as a baseline. The board shows accounts
+  read fully, findings-only and not covered. `rgtriage onboarding` (or asking the agent) prints the one-time StackSet
+  command filled in for your environment. The instance role may assume the role only inside its own organization, with
+  no organization id to configure. See [docs/MULTI-ACCOUNT.md](docs/MULTI-ACCOUNT.md).
+- **Knowledge in Open Knowledge Format (OKF v0.2):** one bundle per installation, replacing v0.2's knowledge library
+  with a standard format. It ships guides (how the desk works, where to look for evidence), a guide per finding source
+  and the remediation playbooks as OKF concepts. Your Application, Account, Risk Exception and Security Goal concepts
+  change priorities once a person has reviewed them, and every effect is cited by path in the finding's reasons. Risk
+  exceptions expire and their findings return. The agent reads, searches and cites the bundle (`rg_triage
+  action=knowledge`) and drafts what it learns into a review queue; it can never approve. The dashboard **Knowledge**
+  tab (Hermes dashboard plugin) has overview and gaps, browse, review, a guided Add form, document import (PDF, Word,
+  PowerPoint, Excel through markitdown, installed on first use) with optional AI drafting that shows the token
+  estimate first, and a graph view. See [docs/KNOWLEDGE.md](docs/KNOWLEDGE.md).
+- **Trust and closure (issues #4–#10):**
+  - Evidence: answers cite evidence ids for observed facts; the desk flags cited ids it never returned. When evidence
+    does not settle a question the agent says "not confirmed" (and what would confirm it) or asks you. Desk-derived
+    signals are labelled ("path not verified", "desk heuristic").
+  - Coverage: every board starts with what was inspected (accounts, regions of enabled, sources) and lists regions
+    with resources outside the scan scope; scope can be confirmed once and recorded.
+  - Current AWS signals: Security Hub exposure findings (OCSF, `GetFindingsV2`) with AWS's traits, attack path and
+    remediation; AWS Critical/High exposures and GuardDuty attack sequences are never ranked lower than AWS rates them;
+    Access Analyzer internal access. boto3 ≥ 1.42. Capability matrix: [docs/AWS-CAPABILITIES.md](docs/AWS-CAPABILITIES.md).
+  - Could vs did: configuration answers what could happen, logs what did; beyond the evidence the agent names the
+    boundary and hands off (new guide "Beyond the desk's evidence" with Athena / CloudTrail Lake queries).
+  - Fix records: deciding to fix starts a record with owner, PR and a proof of done; the desk advances it at every scan
+    (in PR → deployed → verified, reopened, stalled) and shows it on the board and in a Fixes view.
+  - Business context: the board shows "N of 5 basics set"; the agent prefills account, application, owner, IaC and
+    policy suggestions from tags, Organizations and CODEOWNERS; facts you state in chat become active with one click;
+    batch approve in Review.
+  - Data flow: the installer and the dashboard show where data goes, once; `doctor` says whether the model endpoint is
+    local or third-party ([docs/DATA-FLOW.md](docs/DATA-FLOW.md)).
+- **Answers from live evidence:** a finding is a lead, not proof. Every AWS security question (explain or verify a
+  finding, or a question without one, such as "which roles can be assumed from outside?") follows one method: scope,
+  the smallest read that decides it, stop when supported, and an answer split into observed, inferred and gaps.
+  Six evidence guides (identity and trust, effective permissions, network exposure, data protection, detection and
+  history, vulnerabilities) say which reads decide a question and what they cannot show. Skills are assigned by what
+  the user wants: explaining an exposure no longer starts a fix.
+- **IAM evidence:** the IAM policy simulator (including SCPs) and Access Analyzer policy checks are allowed as
+  evaluations; the agent reads policy documents, never infers permissions from names. Every AWS read starts with an
+  Evidence line (account, region, time, complete or partial). With several readable accounts the read must name one.
+  Reads that return credentials are refused. Access Analyzer GitHub OIDC findings are classified from the role's
+  actual trust policy (none, wildcard, one repository with any branch or pull request, pinned) instead of the
+  analyzer's condition summary.
+- **Continuous improvement, gated and human-approved:** redacted execution traces from Hermes hooks with `/rate`
+  and correction detection; an offline evaluation organization (17 deterministic desk checks, 16 agent tasks with
+  train/validation/test splits and critical tasks); SkillOpt-style skill optimization and Harness²-style
+  Propose–Probe–Compose replayed with read-only tools on your configured model; lessons split into skill lessons and
+  organization facts (review queue only); knowledge-gap discovery; skill and knowledge consolidation; `Guidance:`
+  lines that point findings to the right skill and practice; a deterministic security gate (safety lint, protected
+  regions, strict held-out improvement, no critical regression, desk checks, OKF validity) before a person approves; an
+  Improve tab with the candidate queue, diffs, rollback and a nightly Hermes cron review. See
+  [docs/IMPROVEMENT.md](docs/IMPROVEMENT.md). The shipped `rg-investigate` skill already includes one improvement learned
+  this way (cite the finding ref, playbook and knowledge a conclusion relies on), gated and reviewed.
+- **Alerts:** a `security-watch` Hermes cron job reports only new P1/P2 findings, with no model calls.
+- **Durable state:** the Hermes home and desk state are checkpointed to S3 (Spot) or a local folder (workstation) every
+  2 minutes, after scans and decisions, on stop and on Spot interruption notices. Restore is verified, and lineage
+  protection stops a fresh home from overwriting good state.
+- **Deployments:** a disposable Spot instance (no retained volume; restores from S3) and a Docker workstation path
+  (`tools/workstation.py`). Both run a desk process holding the only AWS credentials and a pinned Hermes container
+  holding none. The Spot stack grants KMS decrypt for a customer-managed model-secret key automatically.
+- Validated model: `deepseek-v4.1-flash`.
+- Offline demo: `python tools/demo.py`.
+
+**Removed** (available at tag `v0.2.0`)
+- The `ce-desk` profile and its runtime plugin, the deterministic collector and read catalog, the fix validator
+  container, the v0.2 knowledge library commands (replaced by the OKF bundle and the Knowledge tab), proactive schedules, the optional third-party browser UI, the dashboard
+  session-limit overlay, the retained EBS volume, and the separate storage/IAM stacks.
+
+**Upgrading:** v0.3 is a new deployment, not an in-place upgrade. See [docs/UPGRADING.md](docs/UPGRADING.md).
+
+## Earlier releases
+
+v0.1.x and v0.2.0 shipped the investigation-workflow design (`ce-desk` profile, collector, validator, knowledge
+library). Their notes, documentation and validation records remain in the git history at tags `v0.1.0`–`v0.2.0`.

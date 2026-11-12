@@ -1,0 +1,43 @@
+# RemediGenius Community Edition (RemediGenius-CE) Hermes profile `remedigenius`.
+# Spot and the Docker workstation install it with `hermes profile install`;
+# tools/install_local_hermes.py merges only the keys below into an existing Hermes.
+# Schema version of the pinned Hermes image; without it Hermes treats the file as pre-v12 and never migrates it.
+_config_version: 50
+model:
+  default: __MODEL_NAME__
+  provider: custom
+  base_url: __MODEL_BASE_URL__
+  key_env: MODEL_API_KEY
+agent:
+  max_turns: 30
+# Deliver the transformed final answer, not draft model tokens or reasoning.
+display:
+  streaming: false
+  show_reasoning: false
+streaming:
+  enabled: false
+plugins:
+  enabled:
+    - rg-triage
+    - rg-knowledge
+    - rg-github
+    - rg-board
+# No terminal: AWS access goes only through the read-only rg_triage tool.
+# file: read IaC repositories; writes are limited to the proposals folder by the plugin.
+platform_toolsets:
+  cli: [skills, clarify, file, rg_triage]
+  cron: [skills, file, rg_triage]
+  telegram: [skills, clarify, file, rg_triage]
+  discord: [skills, clarify, file, rg_triage]
+  slack: [skills, clarify, file, rg_triage]
+  api_server: [skills, clarify, file, rg_triage]
+# Kanban board: a to-do list for people. The desk files cards (rg_triage action=card) in triage without an assignee;
+# Hermes never starts worker agents on the board, and the agent has no kanban toolset of its own.
+kanban:
+  dispatch_in_gateway: false
+  auto_decompose: false
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+skills:
+  external_dirs: []

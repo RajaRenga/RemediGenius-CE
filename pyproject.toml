@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "remedigenius-community"
+version = "0.9.1"
+description = "RemediGenius Community Edition (RemediGenius-CE): AWS security triage desk on the Hermes agent"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = ["PyYAML>=6,<7", "boto3>=1.42,<2", "pyiceberg[sql-sqlite,pyarrow]==0.12.0", "pyarrow==23.0.1",
+                "tzdata; sys_platform == 'win32'"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "jsonschema>=4,<5"]
+aws-mcp = ["mcp-proxy-for-aws==1.7.0"]
+
+[project.scripts]
+rgtriage = "rgtriage.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rgtriage*"]
+
+[tool.setuptools.package-data]
+rgtriage = ["playbooks/*.md", "knowledge_base/*/*.md", "schemas/*.json", "evals/*.yaml", "evals/*/*.yaml", "evals/*/*.json", "evals/*/*/*",
+            "evals/*/*/*/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

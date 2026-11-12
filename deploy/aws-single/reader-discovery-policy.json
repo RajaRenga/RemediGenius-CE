@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "ReadOrganizationAndMemberCoverage",
+    "Effect": "Allow",
+    "Resource": "*",
+    "Action": [
+      "organizations:DescribeOrganization",
+      "organizations:ListAccounts",
+      "organizations:ListDelegatedAdministrators",
+      "organizations:ListDelegatedServicesForAccount",
+      "securityhub:ListMembers",
+      "securityhub:ListFindingAggregators",
+      "securityhub:GetFindingAggregator",
+      "guardduty:ListDetectors",
+      "guardduty:ListMembers",
+      "inspector2:ListMembers",
+      "cloudformation:DescribeChangeSet"
+    ]
+  }]
+}

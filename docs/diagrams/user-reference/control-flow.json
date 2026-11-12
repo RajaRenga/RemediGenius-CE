@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "RemediGenius: investigate, approve, persist",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/user-reference/control-flow.html",
+    "repository": {
+      "url": "https://github.com/RajaRenga/RemediGenius-CE.git",
+      "revision": "dcc2abd7c69e3ab47acc27db58d24476bf04da54",
+      "link_mode": "local-only"
+    }
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Operator",
+      "sublabel": "Human authority",
+      "sources": [
+        {
+          "path": "profiles/remedigenius/plugins/rg-triage/__init__.py",
+          "line": 596,
+          "end_line": 610
+        }
+      ]
+    },
+    {
+      "id": "hermes",
+      "type": "frontend",
+      "label": "Hermes",
+      "sublabel": "Tool selection",
+      "sources": [
+        {
+          "path": "profiles/remedigenius/plugins/rg-triage/__init__.py",
+          "line": 596,
+          "end_line": 610
+        }
+      ]
+    },
+    {
+      "id": "desk",
+      "type": "backend",
+      "label": "Desk",
+      "sublabel": "Guarded commands",
+      "sources": [
+        {
+          "path": "rgtriage/server.py",
+          "line": 19,
+          "end_line": 32
+        }
+      ]
+    },
+    {
+      "id": "aws",
+      "type": "cloud",
+      "label": "AWS",
+      "sublabel": "Scoped read role",
+      "sources": [
+        {
+          "path": "docs/DATA-FLOW.md",
+          "line": 8,
+          "end_line": 26
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "database",
+      "label": "Durable facts",
+      "sublabel": "S3 / Iceberg",
+      "sources": [
+        {
+          "path": "rgtriage/repository.py",
+          "line": 180,
+          "end_line": 212
+        }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "id": "step-0",
+      "from": "user",
+      "to": "hermes",
+      "label": "Investigate an issue",
+      "variant": "default",
+      "y": 180
+    },
+    {
+      "id": "step-1",
+      "from": "hermes",
+      "to": "desk",
+      "label": "Get board and evidence",
+      "variant": "emphasis",
+      "y": 228
+    },
+    {
+      "id": "step-2",
+      "from": "desk",
+      "to": "hermes",
+      "label": "Scope, age and coverage",
+      "variant": "return",
+      "y": 276
+    },
+    {
+      "id": "step-3",
+      "from": "hermes",
+      "to": "desk",
+      "label": "Request a targeted AWS read",
+      "variant": "default",
+      "y": 324
+    },
+    {
+      "id": "step-4",
+      "from": "desk",
+      "to": "aws",
+      "label": "Guarded read under selected role",
+      "variant": "security",
+      "y": 372
+    },
+    {
+      "id": "step-5",
+      "from": "aws",
+      "to": "desk",
+      "label": "Response or explicit access gap",
+      "variant": "return",
+      "y": 420
+    },
+    {
+      "id": "step-6",
+      "from": "desk",
+      "to": "hermes",
+      "label": "Bounded evidence with provenance",
+      "variant": "return",
+      "y": 468
+    },
+    {
+      "id": "step-7",
+      "from": "hermes",
+      "to": "user",
+      "label": "Explain; request decision approval",
+      "variant": "security",
+      "y": 516
+    },
+    {
+      "id": "step-8",
+      "from": "user",
+      "to": "hermes",
+      "label": "Approve this decision or deny",
+      "variant": "security",
+      "y": 564
+    },
+    {
+      "id": "step-9",
+      "from": "hermes",
+      "to": "desk",
+      "label": "If approved: record decision",
+      "variant": "emphasis",
+      "y": 612
+    },
+    {
+      "id": "step-10",
+      "from": "desk",
+      "to": "storage",
+      "label": "Commit decision fact",
+      "variant": "emphasis",
+      "y": 660
+    },
+    {
+      "id": "step-11",
+      "from": "storage",
+      "to": "desk",
+      "label": "Commit result",
+      "variant": "return",
+      "y": 708
+    },
+    {
+      "id": "step-12",
+      "from": "desk",
+      "to": "hermes",
+      "label": "Durable success or pending status",
+      "variant": "return",
+      "y": 756
+    },
+    {
+      "id": "step-13",
+      "from": "hermes",
+      "to": "user",
+      "label": "Report outcome",
+      "variant": "return",
+      "y": 804
+    }
+  ],
+  "segments": [
+    {
+      "from": 160,
+      "to": 485,
+      "label": "Read and explain"
+    },
+    {
+      "from": 495,
+      "to": 835,
+      "label": "Human-approved desk decision"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Logical sequence, not measured timing",
+      "items": [
+        "Model inference occurs within Hermes turns; its separate external-data boundary is shown in the infrastructure map.",
+        "AWS reads may use managed MCP or direct SDK according to configuration. Deterministic collection stays direct SDK."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Approval is not cloud deployment",
+      "items": [
+        "Deny stops the decision branch. A triage decision only changes desk records.",
+        "IaC proposals use isolated validation; the operator reviews and deploys through their existing delivery process."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "API callers have the same obligation",
+      "items": [
+        "Native Hermes HTTP is optional and disabled by the standard install. Use restricted tools and private authentication.",
+        "Forward waiting-for-approval to a human; authentication is not permission to approve automatically."
+      ]
+    }
+  ]
+}
