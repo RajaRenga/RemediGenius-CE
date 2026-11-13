@@ -127,10 +127,11 @@ instance role may assume `RemediGeniusReadOnly` only inside its own organization
 python tools/spot_release_test.py v0.3.2 --settings path/to/settings.json
 ```
 
-It downloads the release and checks `SHA256SUMS`, deploys this Terraform as a separate stack named `rgce-release-test`
-(your real installation is not touched), checks the instance over SSM (version, services, skills, plugins, config,
-warnings, the served Knowledge tab, the GitHub isolation checks) and the dashboard's Knowledge and GitHub tabs in headless Chrome, asks the agent "hi" once, then
-destroys everything, bucket included. `settings.json` holds your Terraform variables (`account_id`, `subnet_id`,
+It downloads the release and verifies `SHA256SUMS`, then deploys this Terraform as a separate stack named
+`rgce-release-test` — your real installation is untouched. It checks the instance over SSM (version, services,
+skills, plugins, config, warnings, the served Knowledge tab, the GitHub isolation checks) and the dashboard's
+Knowledge and GitHub tabs in headless Chrome, asks the agent "hi" once, and then destroys everything, bucket
+included. `settings.json` holds your Terraform variables (`account_id`, `subnet_id`,
 `model_secret_arn`, ...); keep it outside the repository. The PASS/FAIL report and screenshots are written to
 `.rgce/release-test-<tag>/`. Use `--local dist/vX.Y.Z` to test a build before publishing it, `--keep` to leave the stack up for manual testing, `--skip-chat` to spend no model
 tokens. It needs terraform, the AWS CLI with the Session Manager plugin, boto3 and, for the browser checks, Playwright.

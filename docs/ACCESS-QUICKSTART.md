@@ -8,8 +8,8 @@ and delegated findings versus member investigations; the [operator reference](US
 places access setup in the full deployment and data flow.
 
 Use this procedure after installing the desk with [existing Hermes](LOCAL-HERMES.md),
-[Docker](WORKSTATION.md), or [Spot](../deploy/aws-single/README.md). No account IDs or roles from the
-another deployment are needed. The preparation tool uses Python's standard library and makes **no AWS calls**.
+[Docker](WORKSTATION.md), or [Spot](../deploy/aws-single/README.md). You don't need account IDs or roles
+from another deployment. The preparation tool uses Python's standard library and makes **no AWS calls**.
 
 **Availability:** this generator and the updated templates are development-branch additions after v0.9.0.
 They are not in the already-published v0.9.0 assets. Use the matching source checkout containing this guide;
