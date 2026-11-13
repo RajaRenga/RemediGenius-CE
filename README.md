@@ -10,7 +10,7 @@ Your AWS security services already find the problems. RemediGenius CE pulls thei
 on [Hermes](https://github.com/NousResearch/hermes-agent), ranks what matters, shows the evidence behind
 each issue, and drafts fixes for you to review. It reads your account; it never changes it.
 
-**[Quickstart](docs/QUICKSTART.md)** · **[Get started](START-HERE.md)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
+**[Quickstart](docs/QUICKSTART.md)** · **[Get started](START-HERE.md)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.2](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.2)**
 
 ## The desk at a glance
 
@@ -26,7 +26,7 @@ it did, and a coverage line that says what was and wasn't read. Account ids, ARN
 The same desk, scrolling from the queue down to the coverage matrix. You drive it by asking questions in
 chat, and the [prompt pack](docs/PROMPTS.md) is a good place to start. Identifiers are redacted.
 [More stills and the coverage report](docs/TUTORIAL.md) ·
-[v0.9.1 fresh-Spot validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md)
+[v0.9.2 fresh-Spot validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.2/VALIDATION.md)
 
 ## What you can ask it
 
@@ -67,20 +67,22 @@ Collection reads Security Hub (including exposure findings), GuardDuty, Inspecto
 Config, CloudWatch alarms and AWS Health. What you get depends on the services, regions and permissions you've
 enabled. [Multi-account guide](docs/MULTI-ACCOUNT.md) · [Permission flow](docs/PERMISSIONS.md)
 
-## What's new in v0.9.1
+## What's new in v0.9.2
 
-- Hermes 0.23.1, pinned by immutable image digest. Existing-Hermes adoption checks the supported version.
-- Held responses for critical reports: the guarded coverage and threat-fix paths return a deterministic report
-  or a reviewed procedure, never an earlier model draft.
-- Dashboard compatibility: the Board uses Hermes's authenticated, profile-aware API; the Knowledge and GitHub
-  tabs were exercised in a real browser.
-- Restore without rescanning: replacement compute brings back committed findings, grouped issues, coverage and
-  the dashboard with the original observation time.
-- PyArrow 23.0.1 with PyIceberg 0.12.0, plus reusable multi-account reader-role preparation and clearer install guides.
+- Sample queries where you type: the chat composer now suggests real desk questions — "what needs my attention?",
+  "who can assume this role?", "propose a fix for this issue" — instead of generic coding prompts, and asking
+  "what can I do?" answers with examples.
+- A bigger [prompt pack](docs/PROMPTS.md): about 40 sample requests in eight groups, each exercised on a live desk.
+- Consistent multi-account setup: one runtime-identity table and the exact workstation caller grant, aligned across
+  the access guides and the onboarding skill.
+- Tighter answers: an account the desk can't read is reported as "cause unverified" (a denial doesn't prove a missing
+  role), and organization facts are labelled Observed or Inferred.
 
-The release passed 59 host checks on fresh Linux/amd64 Spot, real Hermes response replays, authenticated browser
-checks and the native streaming coverage API check, and the exact released artifacts were verified after upload.
-[Final results and limits](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md) ·
+The release passed 65 checks on a fresh cold-boot Linux/amd64 Spot stack — boot, version, plugins and skills, a real
+first scan, S3/Iceberg evidence hashes, Athena reports, the security boundaries, and authenticated browser checks of
+the Knowledge, GitHub and Dashboard tabs — and the agent's answer to "hi" was recorded. The released artifacts are
+checksum-verified.
+[Final results and limits](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.2/VALIDATION.md) ·
 [Changelog](CHANGELOG.md) · [Upgrade guide](docs/UPGRADING.md)
 
 ## Your compute, your evidence
