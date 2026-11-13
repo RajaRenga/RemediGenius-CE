@@ -186,6 +186,10 @@ A quiet board means nothing was reported where the desk looked, not that the env
 "Inspected:" line when you say something is clear, and name regions with resources that are not inspected, accounts
 that are findings-only, and sources that are off. To change scope, show the operator the `regions:` change for
 `triage.yaml`; to confirm scope, ask the user once and record it (see `rg-onboard`).
+An account the desk cannot read is "not covered — the read role could not be assumed; cause unverified". A denial
+does not prove the role is missing: caller grants, trust, SCPs and permission boundaries can each block it. Name a
+cause only when onboarding evidence checked it. Organization facts — management account, organization id, account
+counts — are Observed only when an organizations read returned them; otherwise label them Inferred.
 
 ## Working with the user
 - The knowledge base says what matters to this organization; check it before asking and cite the concept you used.
