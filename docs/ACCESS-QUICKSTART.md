@@ -20,7 +20,7 @@ do not mix its commands with older templates. They are included in the next sour
 | Your AWS setup | What you need |
 | --- | --- |
 | One account, bundled Spot installation | Local audit role is provisioned by Terraform; check discovery permissions when upgrading |
-| Existing Hermes/workstation | Use your chosen AWS profile; prefer an explicit read role in triage.yaml instead of administrator credentials |
+| Existing Hermes/workstation | Use your chosen AWS profile; prefer an explicit read role instead of administrator credentials. The runtime identity to trust is the identity the desk's AWS calls use — with `--read-role-arn` that is the read role, and it needs the caller grant in [the permission contract](MULTI-ACCOUNT.md#both-sides-of-role-assumption) |
 | Organization without delegation | One runtime identity, member read roles in selected target accounts |
 | One security administrator | A reader in that account for associated findings; member roles for investigations |
 | Separate security administrators | Configure each administrator's reader ARN and regions; no need to relocate Hermes |
@@ -42,7 +42,8 @@ desk environment using the deployment's documented command route; do not substit
 credentials. Move the JSON report to a private working directory if preparing the packet on another computer.
 
 Review `reader_arn`, organization, member-role name, role checks and discovery errors. The trusted caller is the
-runtime IAM role/user, not the local audit role or an STS session ARN. Check the full IAM path for SSO roles.
+runtime IAM role/user, not the local audit role or an STS session ARN; a workstation started with `--read-role-arn`
+reports that read role. Check the full IAM path for SSO roles.
 If the report cannot resolve the exact ARN, verify it in IAM and supply `--runtime-arn` below. Unknown organization
 status must be resolved first; the tool will not silently remove an organization trust restriction.
 

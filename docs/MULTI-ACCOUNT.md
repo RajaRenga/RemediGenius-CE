@@ -49,8 +49,41 @@ The runtime must allow `sts:AssumeRole` on approved member-role ARNs. Each targe
 with `aws:PrincipalOrgID` for an organization. The bundled Spot caller policy restricts the common role name to its
 own organization with `aws:ResourceOrgID` and `aws:PrincipalOrgID`.
 
-Trust the host/runtime role, not its local audit role: the audit role denies onward assumption. Workstations use
-the base AWS profile identity. Identity Center trusts need the full IAM role path, not an STS session ARN.
+Trust the identity the desk's AWS calls actually use, not its local audit role: the audit role denies onward
+assumption. Which identity that is depends on the deployment:
+
+| Deployment | Runtime identity to trust (`TrustedPrincipalArn`) | `sts:AssumeRole` caller grant |
+| --- | --- | --- |
+| Spot | The instance role (Terraform output `instance_role`) | Bundled, organization-scoped |
+| Docker workstation started with `--read-role-arn` | That read role's ARN | Attach the caller policy below to the role |
+| Workstation without a read role, or existing Hermes | The AWS profile's IAM user or role ARN | The profile's identity must allow it |
+
+Identity Center trusts need the full IAM role path, not an STS session ARN.
+
+The quickstart's workstation read role carries only `SecurityAudit` and `ViewOnlyAccess`, which do not include
+`sts:AssumeRole`. To read member accounts, attach a caller policy like this one (replace the account ids and
+organization id), and deploy the member roles with `TrustedPrincipalArn` set to the read role's ARN:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "arn:aws:iam::111122223333:role/RemediGeniusReadOnly",
+        "arn:aws:iam::444455556666:role/RemediGeniusReadOnly"
+      ],
+      "Condition": {"StringEquals": {"aws:ResourceOrgID": "o-xxxxxxxxxx"}}
+    }
+  ]
+}
+```
+
+`tools/prepare_access.py` generates this as `caller-policy.json` for the exact runtime and selected accounts;
+prefer the generated packet over hand-writing it. Without the caller grant, member reads fail with `AccessDenied`
+even when the member roles exist and trust the desk.
 
 `AccessDenied` does not prove a role is missing. Check caller permission, trust, SCPs and boundaries. An unresolved
 `AROA...` principal ID can refer to a deleted role; recreating its name does not repair the old trust binding.

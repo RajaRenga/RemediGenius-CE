@@ -44,10 +44,13 @@ When accounts are missing, give the user the exact command from `next_steps`. Do
 the desk identity ARN and organization id. Tell them:
 - Run it once, with management-account (or StackSets delegated administrator) credentials, from the release folder.
 - It deploys `RemediGeniusReadOnly` (SecurityAudit + ViewOnlyAccess + explicit membership discovery + IAM policy simulation and Access Analyzer policy
-  checks, denies secret/object/KMS reads) to every account,
-  including accounts added later (auto-deployment).
+  checks, denies secret/object/KMS reads) to the selected accounts or OU. The desk's StackSet command enables
+  auto-deployment, so accounts added to the OU later get the role; the review packet from `tools/prepare_access.py`
+  targets explicit accounts with auto-deployment off unless the operator chooses otherwise.
 - Inspect existing roles and their owning stacks first; AccessDenied does not prove a role is missing. The runtime
-  caller must allow AssumeRole, and each target must trust that runtime identity, not its audit role. An unresolved
+  caller must allow AssumeRole, and each target must trust that runtime identity, not its audit role. The runtime
+  identity is what the desk's AWS calls use: the Spot instance role, the workstation's `--read-role-arn` role (which
+  needs the caller grant), or the profile identity — docs/MULTI-ACCOUNT.md lists each. An unresolved
   AROA principal can indicate deleted-role trust. Review SCPs/boundaries and the discovery policy in docs/MULTI-ACCOUNT.md.
   Existing audit roles need the discovery supplement too; Python updates do not change IAM. The next scan tries every
   account where the role works. Offer to run `scan` once they say it is deployed, then run

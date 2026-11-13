@@ -16,7 +16,9 @@ ever run. In this release nothing executes: a passing plan ends as a pull reques
 2. `rg_triage action=impact ref=<top ref of the slice>` — the evidence packet and the computed safe-to-fix verdict.
    Read the packet, never raw flow records; the verdict tells you what the standard fix would break before you
    propose anything.
-3. Choose the intent from the registry the desk knows (`narrow_ingress` today). Fill only parameters:
+3. Choose the intent from the registry the desk knows: `narrow_ingress` (replace world access on one tcp port with
+   reviewed ranges and observed internal /32s) is the production intent. `imdsv2` also ships but is a test-only
+   declaration; do not propose it for a real fix. Fill only parameters:
    `schema`, `intent`, `finding_ids`, `targets`, `rationale`, plus the intent's own fields. Every added range needs a
    `reason`; prefer reviewed Network Range concepts (cite them) and observed internal /32s, and say when an observed
    source is not in reviewed knowledge so a person confirms its owner.
@@ -25,7 +27,7 @@ ever run. In this release nothing executes: a passing plan ends as a pull reques
    ordering and rollback.
 5. `rg_triage action=plan path=<saved file>` — the gates (schema, scope, policy, impact) judge it and return the plan
    digest. Show the user every gate result verbatim.
-6. If the impact gate names breaks, present them by name ("10.30.1.5:22, 720 flows in 30 days"). Only the user can
+6. If the impact gate names breaks, present them by name (the address and port, and the observed flow count). Only the user can
    accept a named break, and only outside this tool, when the plan is run; you never accept on their behalf and a
    plan edited after approval is a different plan.
 7. For the code side of the same fix, load `rg-iac-fix` and open the pull request; reference the plan digest in the
