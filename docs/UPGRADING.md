@@ -2,29 +2,29 @@
 
 ## Complete-view recovery candidate (after v0.9.0)
 
-This candidate pins **Hermes 0.23.1** by immutable Docker digest. Native profile installation requires that
-exact version. Update Hermes before running the CE installer; other versions are not certified by this
-release. The deployment keeps the same credential-separated desk and S3/Iceberg storage.
+This candidate pins Hermes 0.23.1 by immutable Docker digest. Native profile installation requires that exact
+version, so update Hermes before running the CE installer; other versions are not certified by this release. The
+deployment keeps the same credential-separated desk and S3/Iceberg storage.
 
-Before replacing an existing test installation, retain its Hermes-home checkpoint. Hermes advances its
-session database schema from 31 to 33; rollback needs the pre-upgrade Hermes home as well as the old image.
-Do not clear the evidence bucket. Verify restored history and committed desk state before refreshing scans.
-An AMI baked with another Hermes digest is deliberately rejected. Use the supported clean Amazon Linux
-bootstrap; do not remove the baked-image identity check.
+Before replacing an existing test installation, retain its Hermes-home checkpoint. Hermes advances its session
+database schema from 31 to 33, so rollback needs the pre-upgrade Hermes home as well as the old image. Don't clear
+the evidence bucket. Verify restored history and committed desk state before refreshing scans. An AMI baked with
+another Hermes digest is deliberately rejected. Use the supported clean Amazon Linux bootstrap; don't remove the
+baked-image identity check.
 
-This candidate upgrades PyArrow from 19.0.1 to 23.0.1 while retaining PyIceberg 0.12.0 and existing table
-schemas. Reinstall the updated CE package dependencies for local Hermes; replacing the profile alone does
-not upgrade Python packages. Windows installs now include `tzdata` for timestamp conversion. EC2 bootstrap
-detects changed runtime pins even on an older baked image. Rebuild workstation images to pick up the pin.
+This candidate upgrades PyArrow from 19.0.1 to 23.0.1 while retaining PyIceberg 0.12.0 and the existing table
+schemas. Reinstall the updated CE package dependencies for local Hermes — replacing the profile alone does not
+upgrade Python packages. Windows installs now include `tzdata` for timestamp conversion. EC2 bootstrap detects
+changed runtime pins even on an older baked image. Rebuild workstation images to pick up the pin.
 
-The upgrade includes the fix for [CVE-2026-25087](https://github.com/advisories/GHSA-rgxp-2hwp-jwgg).
-Upstream describes a C++ IPC pre-buffering path not exposed by Python bindings; CE uses Iceberg/Parquet
-and has no direct IPC-reader path. This is dependency maintenance, not evidence of exploitation in CE.
+The upgrade includes the fix for [CVE-2026-25087](https://github.com/advisories/GHSA-rgxp-2hwp-jwgg). Upstream
+describes a C++ IPC pre-buffering path not exposed by the Python bindings; CE uses Iceberg/Parquet and has no direct
+IPC-reader path. This is dependency maintenance, not evidence of exploitation in CE.
 
-Upgrade one writer at a time. Keep the existing durable bucket/catalog and checkpoint the current instance.
-The candidate adds `current_scan` using existing scoped table permissions. It verifies legacy exports against
-committed facts before promoting their view metadata. If verification fails, startup blocks; it does not scan
-silently to replace the missing view. See [RECOVERY.md](RECOVERY.md) for legacy metadata limits.
+Upgrade one writer at a time. Keep the existing durable bucket/catalog and checkpoint the current instance. The
+candidate adds `current_scan` using existing scoped table permissions, and verifies legacy exports against committed
+facts before promoting their view metadata. If verification fails, startup blocks; it does not scan silently to
+replace the missing view. See [RECOVERY.md](RECOVERY.md) for legacy metadata limits.
 
 Prove replacement with scheduled scans disabled: original timestamp, findings, grouped issues, exact coverage,
 rendered dashboard and readiness must agree before allowing refresh. Older binaries ignore the new manifest and
@@ -32,52 +32,52 @@ retain the known incomplete-recovery behavior; rollback to them does not preserv
 
 ## To v0.9.0 (from v0.8.1)
 
-Keep the same storage namespace and installation identity. Stop the old writer and verify it has exited
-before starting replacement compute. S3/Glue persist independently of that replacement; do not destroy the
-storage stack. Use the [native profile update procedure](LOCAL-HERMES.md) for an existing local Hermes.
+Keep the same storage namespace and installation identity. Stop the old writer and verify it has exited before
+starting replacement compute. S3/Glue persist independently of that replacement; don't destroy the storage stack.
+Use the [native profile update procedure](LOCAL-HERMES.md) for an existing local Hermes.
 
 Existing table schemas are unchanged. The preserved development work adds `flow_logs`, `trail_events` and
-`execution_receipts` tables; initialization creates missing tables in the existing namespace. New scans add
-readable exports and write correctly converted OCSF timestamps.
-Existing historical rows with incorrectly scaled OCSF dates are not silently rewritten: their source JSON
-and observation/ingestion columns remain available for interpretation. Rescan to refresh current evidence;
-do not treat an old OCSF timestamp as authoritative incident timing without checking its source.
+`execution_receipts` tables; initialization creates missing tables in the existing namespace. New scans add readable
+exports and write correctly converted OCSF timestamps. Existing historical rows with incorrectly scaled OCSF dates
+are not silently rewritten: their source JSON and observation/ingestion columns remain available for interpretation.
+Rescan to refresh current evidence; don't treat an old OCSF timestamp as authoritative incident timing without
+checking its source.
 
-Exports first appear after a successful new scan. Existing Iceberg facts continue to work if export upload
-fails; check `doctor` for the separate export status. No distributed writer lease or cross-scan deduplication
-migration is introduced.
+Exports first appear after a successful new scan. Existing Iceberg facts continue to work if export upload fails;
+check `doctor` for the separate export status. No distributed writer lease or cross-scan deduplication migration is
+introduced.
 
 ## To v0.8.0 (from v0.7.0)
 
-Before replacing an existing v0.7.0 or early MCP candidate instance, checkpoint its approved knowledge
-explicitly on that host (replace the bucket placeholder):
+Before replacing an existing v0.7.0 or early MCP candidate instance, checkpoint its approved knowledge explicitly on
+that host (replace the bucket placeholder):
 
 ```sh
 sudo rgdesk durable checkpoint --url 's3://<deployment-bucket>/state' --home knowledge=/data/rgtriage/knowledge
 ```
 
-Require a successful saved/unchanged result before replacement. The older three-home checkpoint does not
-contain the approved bundle; copies of imported originals or drafts do not preserve its review decisions.
+Require a successful saved/unchanged result before replacement. The older three-home checkpoint does not contain the
+approved bundle; copies of imported originals or drafts do not preserve its review decisions.
 
-Apply the new standard `deploy/aws-single` Terraform with the v0.8.0 release archive, checkpoint the
-existing profile, then replace the instance. The deployment adds a scoped analytics role and Athena workgroup;
-bootstrap installs pinned runtimes and supplies missing managed-MCP/enabled-analytics settings. Explicit
-`aws_investigation.transport: direct` and `athena_analytics.enabled: false` choices are retained.
-No Iceberg schema migration is introduced. After replacement, check a guarded AWS read and all four reports,
-plus saved chats/knowledge and committed storage health. See [recovery](RECOVERY.md).
+Apply the new standard `deploy/aws-single` Terraform with the v0.8.0 release archive, checkpoint the existing profile,
+then replace the instance. The deployment adds a scoped analytics role and Athena workgroup; bootstrap installs pinned
+runtimes and supplies missing managed-MCP/enabled-analytics settings. Explicit `aws_investigation.transport: direct`
+and `athena_analytics.enabled: false` choices are retained. No Iceberg schema migration is introduced. After
+replacement, check a guarded AWS read and all four reports, plus saved chats/knowledge and committed storage health.
+See [recovery](RECOVERY.md).
 
-If earlier experiments created resources with the same analytics names, inspect and import the matching
-resources into this stack's Terraform state before applying; do not create competing resources or overwrite
-another stack. Normal v0.7.0 installations do not have those experimental resources. The existing lab's
-upgrade/replacement and a clean new stack were validated. No new v0.8.0 baked AMI is certified; use
-plain Amazon Linux bootstrap or build and validate an image for the exact release archive.
+If earlier experiments created resources with the same analytics names, inspect and import the matching resources
+into this stack's Terraform state before applying; don't create competing resources or overwrite another stack. Normal
+v0.7.0 installations do not have those experimental resources. The existing lab's upgrade/replacement and a clean new
+stack were validated. No new v0.8.0 baked AMI is certified; use plain Amazon Linux bootstrap, or build and validate an
+image for the exact release archive.
 
 ## To v0.5.0 (from v0.4.x)
 
-v0.5.0 is a **fresh-install release**. The desk's facts moved from JSON files and whole-home archives to S3 raw
-objects and Iceberg tables ([STORAGE.md](STORAGE.md)). It does not import the v0.4 JSON desk state: if the desk finds
-`latest.json` or `decisions.json` on a fresh cache it stops with instructions to move or delete the old desk state.
-The Hermes home (conversations, dashboard settings) and the OKF knowledge bundle keep their existing path.
+v0.5.0 is a fresh-install release. The desk's facts moved from JSON files and whole-home archives to S3 raw objects and
+Iceberg tables ([STORAGE.md](STORAGE.md)). It does not import the v0.4 JSON desk state: if the desk finds `latest.json`
+or `decisions.json` on a fresh cache it stops with instructions to move or delete the old desk state. The Hermes home
+(conversations, dashboard settings) and the OKF knowledge bundle keep their existing path.
 
 - **Spot:** deploy a new stack (recommended) or rebuild the archive and let the new boot create the storage. Copy
   anything you want from the v0.4 deployment first: `triage.yaml`, the knowledge bundle and any exported knowledge.
@@ -103,25 +103,29 @@ provider you configure.
 
 ## To v0.4.0 (from v0.3.x)
 
-Spot: rebuild the archive, `terraform apply`, then replace the instance (the same steps as within v0.3.x). The new instance restores your state
-from S3; nothing needs migrating. What changes:
+Spot: rebuild the archive, `terraform apply`, then replace the instance (the same steps as within v0.3.x). The new
+instance restores your state from S3; nothing needs migrating. What changes:
 
-- **The Hermes WebUI is removed.** Use the dashboard (`tools/open-remedigenius`): it has the Chat tab, Knowledge, Improve and the new GitHub tab.
-  Why: Knowledge, Improve, GitHub and Kanban only ever lived in the dashboard, so a second UI showed a different, partial picture, and it was a
-  third-party image to re-pin and re-test with every release. The `-WebUI` / `--webui` flags of the open-console scripts are gone.
-- **The `webui` Terraform variable is gone.** If your tfvars file sets `webui = ...`, delete that line (Terraform only warns about an unknown
-  variable in a tfvars file, but an explicit `-var webui=...` is an error).
-- **The agent's API server is no longer exposed.** It was opened to the private container network (port 8642, with a shared key) only for the WebUI.
-  Hermes still starts its own API server, but on loopback inside the agent container: nothing is published for it and nothing outside can reach it. The boot
-  removes the old shared key (`/data/hermes/.remedigenius-api-key` and `API_SERVER_KEY` lines in the `.env` files), the old WebUI service, container
-  and volume if present, and the generated wiki view (`/data/hermes/rg-wiki`, **Insights, LLM Wiki**), which only the WebUI showed. The desk no longer
-  writes it (`RGTRIAGE_WIKI_DIR` has no effect).
-- **Your WebUI data is left alone.** Its own folder, `/data/hermes/webui`, stays; delete it in an SSM session when you are sure you no longer need it.
-  Conversations are stored by Hermes and stay available in the dashboard.
-- **New: GitHub.** The dashboard has a GitHub tab (Spot only) to connect one repository so fixes can become pull requests into your
-  development branch; see [GITHUB.md](GITHUB.md). It adds a separate validation service, the `rgdesk` command, `tflint` and `cfn-lint`, and PyYAML 6.0.3.
-- **Fixed:** the Kanban dispatcher is now verified off at boot. On a v0.3.3 Spot it could be on in the default profile.
-- **Docker workstation and existing Hermes:** nothing changes there except that the GitHub tab is not available (the key cannot be kept away from the agent).
+- The Hermes WebUI is removed. Use the dashboard (`tools/open-remedigenius`): it has the Chat tab, Knowledge, Improve
+  and the new GitHub tab. Knowledge, Improve, GitHub and Kanban only ever lived in the dashboard, so a second UI showed
+  a different, partial picture, and it was a third-party image to re-pin and re-test with every release. The `-WebUI` /
+  `--webui` flags of the open-console scripts are gone.
+- The `webui` Terraform variable is gone. If your tfvars file sets `webui = ...`, delete that line (Terraform only warns
+  about an unknown variable in a tfvars file, but an explicit `-var webui=...` is an error).
+- The agent's API server is no longer exposed. It was opened to the private container network (port 8642, with a shared
+  key) only for the WebUI. Hermes still starts its own API server, but on loopback inside the agent container: nothing is
+  published for it and nothing outside can reach it. The boot removes the old shared key
+  (`/data/hermes/.remedigenius-api-key` and `API_SERVER_KEY` lines in the `.env` files), the old WebUI service, container
+  and volume if present, and the generated wiki view (`/data/hermes/rg-wiki`, **Insights, LLM Wiki**), which only the
+  WebUI showed. The desk no longer writes it (`RGTRIAGE_WIKI_DIR` has no effect).
+- Your WebUI data is left alone. Its own folder, `/data/hermes/webui`, stays; delete it in an SSM session when you are
+  sure you no longer need it. Conversations are stored by Hermes and stay available in the dashboard.
+- New: GitHub. The dashboard has a GitHub tab (Spot only) to connect one repository so fixes can become pull requests
+  into your development branch; see [GITHUB.md](GITHUB.md). It adds a separate validation service, the `rgdesk` command,
+  `tflint` and `cfn-lint`, and PyYAML 6.0.3.
+- Fixed: the Kanban dispatcher is now verified off at boot. On a v0.3.3 Spot it could be on in the default profile.
+- Docker workstation and existing Hermes: nothing changes there except that the GitHub tab is not available (the key
+  cannot be kept away from the agent).
 
 ## Within v0.3.x
 
@@ -140,7 +144,7 @@ exported anything you want from them; v0.2 remains available at tag `v0.2.0`.
 
 Checkpoints written by v0.3 are not compatible with v0.2 backups, and v0.3 never reads v0.2 state.
 
-**Knowledge from v0.2:** v0.2 stored reviewed knowledge with OKF-style frontmatter. Export it from the v0.2 deployment
+Knowledge from v0.2: v0.2 stored reviewed knowledge with OKF-style frontmatter. Export it from the v0.2 deployment
 (its library folder or the exported concept files), zip the `.md` files, and import the zip in the v0.3 **Knowledge**
 tab: each concept lands in the review queue, where you approve it into the bundle. Plain documents (policies, runbooks)
 can be imported directly. See [KNOWLEDGE.md](KNOWLEDGE.md).

@@ -84,8 +84,8 @@ collection continues. After Spot replacement, bootstrap reinstalls the default p
 is reported and collection still starts. The operator can repair dependencies or explicitly disable MCP.
 
 The packaged candidate passed fresh-host bootstrap and Spot replacement on the existing lab, including
-dependency installation, a real managed read and refusal of writes/secret reads. Details and limits are in
-release validation. The host installer constrains resolution against both existing
+dependency installation, a real managed read and refusal of writes/secret reads. Details and limits are in the
+[release validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md). The host installer constrains resolution against both existing
 pins and the tested Linux dependency snapshot (`aws-mcp-constraints.txt`); conflicts fail rather than upgrade
 core packages. New-stack creation from zero, long-running credential expiry, multi-account managed transport,
 endpoint outage and large-result pagination remain separate validation limits. OAuth is not claimed as tested.

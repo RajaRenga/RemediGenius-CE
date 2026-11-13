@@ -1,12 +1,12 @@
 # Knowledge source onboarding
 
-CE uses Hermes connections to retrieve selected material and its knowledge workflow to retain References,
-draft concepts and require human review. A configured connector is not proof of successful authentication,
-content retrieval or reliable answers. See [knowledge management](KNOWLEDGE.md) and [MCP capabilities](MCP-CAPABILITIES.md).
+CE uses Hermes connections to retrieve selected material, and its knowledge workflow to retain References, draft
+concepts and require human review. A configured connector is not proof of successful authentication, content retrieval
+or reliable answers. See [knowledge management](KNOWLEDGE.md) and [MCP capabilities](MCP-CAPABILITIES.md).
 
 ## Bring a source into the desk
 
-1. Connect the provider through Hermes connection management with access limited to the intended material.
+1. Connect the provider through Hermes connection management, with access limited to the intended material.
 2. Verify a representative document read. Public AWS documentation describes service behavior, not account state.
 3. Import selected content through the Knowledge workflow. Retain its canonical source URI and revision where
    available. Source URI fields preserve provenance; they do not fetch the URL.
@@ -25,4 +25,4 @@ content retrieval or reliable answers. See [knowledge management](KNOWLEDGE.md) 
 - AWS audit credentials are not general document-ingestion credentials. Keep document access separately scoped.
 - Third-party finding ingestion and model explanations do not certify complete AWS remediation coverage.
 
-Use release validation to distinguish tested capabilities from remaining limits.
+See [Limits](LIMITS.md) for what is and isn't covered.

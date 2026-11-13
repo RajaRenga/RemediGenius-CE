@@ -15,11 +15,11 @@ No custom agent runtime: Hermes provides chat, the dashboard, skills, memory, sc
 adds the desk package, a profile with task-specific skills and plugins, and dashboard workflows.
 Organization knowledge is one Open Knowledge Format bundle ([KNOWLEDGE.md](KNOWLEDGE.md)).
 
-The standard EC2 deployment enables managed AWS MCP investigation and Athena analytics by default.
-The desk retains credentials and the read guard. Current findings still use deterministic collection;
-historical aggregate questions use fixed Athena reports through an isolated Data Processing MCP runtime.
-The analytics role can read the warehouse and write query results, not change findings. Native Hermes
-discovery loads relevant vendor documentation tools on demand. See the interactive
+The standard EC2 deployment enables managed AWS MCP investigation and Athena analytics by default. The desk keeps
+the credentials and the read guard. Current findings still use deterministic collection; historical aggregate
+questions use fixed Athena reports through an isolated Data Processing MCP runtime. The analytics role can read the
+warehouse and write query results, but not change findings. Native Hermes discovery loads relevant vendor
+documentation tools on demand. See the interactive
 [MCP architecture diagram](diagrams/mcp-release.html) and [connection model](AWS-CONNECTIONS.md).
 
 ```mermaid

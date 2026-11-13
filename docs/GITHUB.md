@@ -1,34 +1,33 @@
 # GitHub: fixes as pull requests into your development branch
 
-RemediGenius-CE can turn a validated IaC fix into a **pull request**. It never merges, approves or touches your production
-branch: a person reviews and merges. This page covers setup, daily use, how it stays safe, and recovery.
+RemediGenius-CE can turn a validated IaC fix into a pull request. It never merges, approves or touches your
+production branch — a person reviews and merges. This page covers setup, daily use, how it stays safe, and recovery.
 
-Available on the **Spot** deployment (the App key lives where the agent container cannot see it). On the Docker workstation and with
-an existing Hermes the desk's state folder is readable by the agent, so GitHub shows `Blocked` and explains why; proposals and Kanban
-cards still work there.
+It's available on the Spot deployment, where the App key lives somewhere the agent container can't see it. On
+the Docker workstation and with an existing Hermes, the desk's state folder is readable by the agent, so GitHub
+shows `Blocked` and explains why; proposals and Kanban cards still work there.
 
 ## Set it up in the web console
 
-Open the console and click the **GitHub** tab (next to Knowledge). Everything happens on that page:
+Open the console and click the **GitHub** tab, next to Knowledge. Everything happens on that page:
 
 1. **Connect GitHub.** Click the button (add your organization's name first if the App should belong to it). You go to github.com.
-2. **Create GitHub App:** GitHub shows a pre-filled page; click the green button once. GitHub brings you back to the console by itself.
-3. **Install:** the page shows an **Open GitHub to install** button. On GitHub choose **Only select repositories**, pick just the repository
-   RemediGenius may use, and click **Install**. The page notices on its own and moves on.
-4. **Choose the repository, development branch and human reviewers** from the drop-downs (reviewers by GitHub name, or `org/team`; bots are
-   refused). **Save and check.**
-5. The page shows the result: whether pull requests can be created, and each protection on your development and production branches as present
-   or missing, with the next step. **Check protection now**, **Refresh repository**, **Change repository, branch or reviewers**,
-   **Reconnect** and **Disconnect** are buttons on the same page.
+2. **Create GitHub App.** GitHub shows a pre-filled page; click the green button once. GitHub brings you back to the console by itself.
+3. **Install.** The page shows an **Open GitHub to install** button. On GitHub choose **Only select repositories**, pick just the
+   repository RemediGenius may use, and click **Install**. The page notices on its own and moves on.
+4. **Choose the repository, development branch and human reviewers** from the drop-downs (reviewers by GitHub name, or `org/team`;
+   bots are refused). Then **Save and check**.
+5. The page shows the result: whether pull requests can be created, and each protection on your development and production branches
+   as present or missing, with the next step. **Check protection now**, **Refresh repository**, **Change repository, branch or
+   reviewers**, **Reconnect** and **Disconnect** are all buttons on the same page.
 
-Steps 2 and 3 are your consent on github.com; nothing secret is shown or copied. GitHub sends the App's key straight to the desk on the host,
-never to the browser, the dashboard process or the agent. The page is for people only: the agent cannot connect, change or disconnect GitHub
-(if you ask it to, it points you to this tab). If the repository has no development branch yet, the page shows the one command an
-administrator runs, with their own login, to create it. If it has no protections, apply [`deploy/github`](../deploy/github/README.md) as a
-repository administrator and press **Check protection now**.
+Steps 2 and 3 are your consent on github.com; nothing secret is shown or copied. GitHub sends the App's key straight to the desk on
+the host, never to the browser, the dashboard process or the agent. The page is for people only: the agent can't connect, change or
+disconnect GitHub (ask it to, and it points you to this tab). If the repository has no development branch yet, the page shows the one
+command an administrator runs, with their own login, to create it. If it has no protections, apply
+[`deploy/github`](../deploy/github/README.md) as a repository administrator and press **Check protection now**.
 
 ## Set it up from the command line (alternative)
-
 
 From your computer (needs the AWS CLI with the Session Manager plugin and your AWS credentials for the stack):
 
@@ -38,20 +37,20 @@ python tools/github_connect_spot.py --stack <your stack name>
 
 It opens a secure session to the instance and runs the guided `sudo rgdesk github setup` there. Setup:
 
-1. **Checks prerequisites** and tells you what to fix: the key folder is isolated from the agent, the validation service is running,
+1. Checks prerequisites and tells you what to fix: the key folder is isolated from the agent, the validation service is running,
    `openssl` is present, `api.github.com` is reachable, and which checking tools (`terraform`, `tflint`, `cfn-lint`) are installed.
-2. **Connects GitHub.** It prints an address (`http://localhost:8743/`, forwarded to your computer). In your own browser click
-   **Create GitHub App** on github.com, then **Install**, and choose **Only select repositories**: pick just the repository RemediGenius
-   may use. These two clicks are your consent; nothing secret passes through the helper, and GitHub returns the App key straight to the
-   desk. Add `--org YOUR-ORG` to create the App under an organization you own.
-3. **Asks for the repository** (only the ones you selected), the **development branch** (never `main`, `master`, release or your default
-   branch) and the **human reviewers** (people by login, or `org/team`; bots are refused).
-4. **Shows which protections are present or missing** on the development and production branches, and the exact next step.
+2. Connects GitHub. It prints an address (`http://localhost:8743/`, forwarded to your computer). In your own browser click
+   **Create GitHub App** on github.com, then **Install**, and choose **Only select repositories**: pick just the repository
+   RemediGenius may use. These two clicks are your consent; nothing secret passes through the helper, and GitHub returns the App key
+   straight to the desk. Add `--org YOUR-ORG` to create the App under an organization you own.
+3. Asks for the repository (only the ones you selected), the development branch (never `main`, `master`, release or your default
+   branch) and the human reviewers (people by login, or `org/team`; bots are refused).
+4. Shows which protections are present or missing on the development and production branches, and the exact next step.
 
-It is safe to run again at any point: an interrupted setup resumes where it stopped, a finished one just re-checks. Without a terminal
+It's safe to run again at any point: an interrupted setup resumes where it stopped, a finished one just re-checks. Without a terminal,
 use flags: `sudo rgdesk github setup --repo OWNER/NAME --base dev --reviewer LOGIN --yes`.
 
-**Setup finishing is not proof that it works.** The last lines say whether pull requests can be created; the first real PR is the real test.
+Finishing setup isn't proof that it works. The last lines say whether pull requests can be created; the first real PR is the real test.
 
 If the repository has no development branch yet, setup prints the one command an administrator runs with their own login to create it.
 If it has no protections, apply [`deploy/github`](../deploy/github/README.md) as a repository administrator, then `sudo rgdesk github verify`.
@@ -72,28 +71,28 @@ writes are enabled. `verify` re-reads the protections and updates that decision;
 
 Ask for a fix as before. When GitHub is ready the agent offers a PR and you approve the single `github publish` prompt. The desk then:
 
-1. Re-checks the repository and protections (a failed or unreadable check denies the write) and resolves any **existing PR and branch for
-   this finding first**: if that PR was retargeted away from the development branch, comes from another repository, or its branch holds
+1. Re-checks the repository and protections (a failed or unreadable check denies the write), and resolves any existing PR and branch for
+   this finding first. If that PR was retargeted away from the development branch, comes from another repository, or its branch holds
    someone else's commits, it stops before changing anything.
-2. Validates **exactly the tree it will commit** (the branch head, or the development branch for a new task, with the proposal applied) in
+2. Validates exactly the tree it will commit — the branch head, or the development branch for a new task, with the proposal applied — in
    an isolated validation service: `terraform init/validate/fmt`, `tflint`, `cfn-lint`, YAML and JSON checks. A failed check pushes
    nothing. A tool that is missing is shown as **skipped (not validated)**.
 3. Commits through the GitHub API (no `git push`, no repository hooks), to `feature/remedigenius/fix-<finding ref>`, and opens or updates
-   **one** PR into your development branch, asks your reviewers, and links the PR to the fix record.
+   one PR into your development branch, asks your reviewers, and links the PR to the fix record.
 
 Every step can be repeated: a retry after a partial failure finishes the missing steps (for example creating the PR) without a second
 commit, and the result says what happened. The branch and PR belong to the finding, not the title, so rewording never creates another PR.
-If an earlier PR for the finding was **closed without merging**, a new PR is opened from the same branch; if it was **merged**, the next
-fix starts a numbered follow-up branch (`...-r2`) from the development branch.
+If an earlier PR for the finding was closed without merging, a new PR is opened from the same branch; if it was merged, the next fix
+starts a numbered follow-up branch (`...-r2`) from the development branch.
 
 The desk also mirrors the development branch read-only (secrets, state files and `.tfvars` are left out) and keeps a **Repository** page in
 the Knowledge tab. Run `sudo rgdesk github refresh` (or tell the agent "I updated the repo") after you change the repository. Refresh only
 rewrites the generated block of that page: the owner, notes and review history a person added are kept, and if the repository, branch or
-kind of IaC changed the page is marked stale so someone re-confirms it.
+kind of IaC changed, the page is marked stale so someone re-confirms it.
 
 ## What enforces what
 
-GitHub App permissions cannot separate "open a PR" from "approve or merge a PR", so two layers cooperate:
+GitHub App permissions can't separate "open a PR" from "approve or merge a PR", so two layers cooperate:
 
 | Rule | Enforced by |
 |---|---|
@@ -119,8 +118,8 @@ You can revoke at any time: `sudo rgdesk github disconnect` removes the installa
 (`--keep-installation` only deletes the local files), and prints the link to delete the App itself. Or on GitHub: Settings, Applications,
 Installed GitHub Apps, **Uninstall** (or suspend). After revoking, writes stop immediately.
 
-**The recovery is always the same:** press **Reconnect GitHub** on the GitHub tab (or `sudo rgdesk github connect --no-browser`, or the setup command again). It first asks GitHub
-what became of the App, then does the right thing:
+Recovery is always the same: press **Reconnect GitHub** on the GitHub tab (or `sudo rgdesk github connect --no-browser`, or the setup
+command again). It first asks GitHub what became of the App, then does the right thing:
 
 | What happened | What `connect` does |
 |---|---|
@@ -130,7 +129,7 @@ what became of the App, then does the right thing:
 | The App was deleted on GitHub (or its key was rejected) | Creates a **replacement App** (its old installation went away with it). Writes stay off until `verify` passes for the new App. |
 | GitHub cannot be reached | Says so and changes nothing. |
 
-Other messages: **organization approval** pending, or the App suspended: an organization owner approves or unsuspends it, then run `status`.
+Other messages: **organization approval** pending, or the App suspended — an organization owner approves or unsuspends it, then run `status`.
 **"Permissions, not protection"**: the installation has not accepted the App's Administration-read permission; approve the updated permissions
 (Settings, Installed GitHub Apps, Configure) and run `verify`. **requires a reviewed PR: fail**: the protection is missing, or your plan cannot
 have it (rulesets need a public repository or GitHub Pro/Team/Enterprise); the desk stays in read/proposal mode.
@@ -144,7 +143,7 @@ the stack with its data deletes them; disconnect first if you want the installat
 
 - One repository and one development branch per installation (one operator, one organization).
 - Spot only (see above). The Docker workstation and existing Hermes can still use proposals and Kanban cards.
-- The desk cannot prove who your designated reviewers are beyond GitHub's own rules; keep CODEOWNERS and the rulesets under human control.
+- The desk can't prove who your designated reviewers are beyond GitHub's own rules; keep CODEOWNERS and the rulesets under human control.
 - Checks on the PR are read from GitHub; the desk does not run your CI.
 - Validation sees the repository's files except secrets, state, `.tfvars`, symbolic links and files over 5 MB; it never plans or applies.
 - The validation user can use the internet (to download Terraform providers) but not the instance metadata service or private networks.

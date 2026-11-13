@@ -99,9 +99,9 @@ unavailable, never a successful empty result. Repair using the shipped
 `deploy/aws-single/install-aws-investigation.sh` or `install-athena-runtime.sh` on the host, then retry.
 
 Verify both a guarded AWS read and all four analytics reports after recovery, not just service health.
-The November candidate passed this check after replacing the live lab instance; see
-release validation. Query results are disposable in `analytics-results/`;
-the Iceberg warehouse remains the evidence authority.
+The November candidate passed this check after replacing the live lab instance (see the
+[release validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md)).
+Query results are disposable in `analytics-results/`; the Iceberg warehouse remains the evidence authority.
 
 ## S3 or Glue outage
 

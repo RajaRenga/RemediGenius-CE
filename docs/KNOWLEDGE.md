@@ -3,7 +3,7 @@
 The security desk's knowledge is one [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format)
 (OKF v0.2) bundle per installation: a folder of markdown concepts with YAML frontmatter, generated `index.md` files, a
 `log.md` history, and markdown links that form a graph. People review it, the agent reads and cites it, and reviewed
-concepts change the desk's priorities with a citation in every finding they touch.
+concepts change the desk's priorities, with a citation in every finding they touch.
 
 ```mermaid
 flowchart LR
@@ -35,7 +35,7 @@ own Policy, Runbook or Note that links to it instead.
 
 ## How knowledge changes priorities
 
-Only **human-reviewed, stable** concepts change scores (OKF trust tier `human-reviewed`: a `verified` entry by a
+Only human-reviewed, stable concepts change scores (OKF trust tier `human-reviewed`: a `verified` entry by a
 `human:` actor). Drafts, unreviewed and deprecated concepts are context only. Each effect appears in the finding's
 "why this priority" reasons with the concept path, and `rgtriage show REF` lists every concept used.
 
@@ -55,7 +55,7 @@ and applies after the knowledge concepts.
 Open the dashboard (workstation `http://127.0.0.1:9125`, Spot through the SSM tunnel) and choose **Knowledge**.
 
 - **Overview:** concepts, how many are reviewed, how many currently change priorities, drafts waiting, stale concepts,
-  and *what the desk is missing*, for example "7 open P1/P2 findings sit on resources the desk cannot map to an
+  and *what the desk is missing* — for example "7 open P1/P2 findings sit on resources the desk cannot map to an
   application", each with a button to add the right concept. It also runs the bundle check (OKF conformance and broken links).
 - **Browse:** search and filter concepts; each concept shows its effect, settings, sources, rendered text, links and
   backlinks. Mark reviewed, edit the OKF source, deprecate, or move to the trash (kept, never deleted).
@@ -72,15 +72,16 @@ The reviewer name at the top is recorded as `human:<name>` (default: the dashboa
 
 ### Documents and the model (token use)
 
-- **Conversion is local and free.** PDF and Office files are converted by [markitdown](https://github.com/microsoft/markitdown)
-  (MIT), installed on first use from the Import page into `installs/rg-documents` in the Hermes home (about 350 MB,
-  not part of the checkpoints). It runs without the model key, without the dashboard's secrets and without AWS
-  credentials. Markdown, text and CSV need no converter.
-- **Drafting with AI is optional and spends tokens.** After an import, or for any reference, *Draft with AI* shows
-  the estimate first (about one token per four characters, up to the first 60,000 characters, plus up to 6,000 output
-  tokens) and the model it will use. Nothing is sent until you confirm. The call uses Hermes's own plugin model access
-  with your configured provider; the result shows the tokens actually used. The model proposes up to 12 concepts;
-  they land in the review queue as drafts with the document as their source.
+Conversion is local and free. PDF and Office files are converted by [markitdown](https://github.com/microsoft/markitdown)
+(MIT), installed on first use from the Import page into `installs/rg-documents` in the Hermes home (about 350 MB,
+not part of the checkpoints). It runs without the model key, without the dashboard's secrets and without AWS
+credentials. Markdown, text and CSV need no converter.
+
+Drafting with AI is optional and spends tokens. After an import, or for any reference, *Draft with AI* shows the
+estimate first (about one token per four characters, up to the first 60,000 characters, plus up to 6,000 output
+tokens) and the model it will use. Nothing is sent until you confirm. The call uses Hermes's own plugin model access
+with your configured provider; the result shows the tokens actually used. The model proposes up to 12 concepts;
+they land in the review queue as drafts with the document as their source.
 
 ## What the agent does with it
 
@@ -95,7 +96,7 @@ The `rg-knowledge` skill and the read-only `rg_triage action=knowledge` tool:
 - It cites concepts with their trust tier, says when one is stale, and respects Policy and Runbook concepts in fixes
   (`rgtriage fix` lists the relevant ones).
 - When it learns something from you ("payments-db belongs to the payments team; an outage stops card payments"), it
-  writes a draft to `proposals/knowledge/…` and tells you to review it. It cannot write to the bundle or mark anything
+  writes a draft to `proposals/knowledge/…` and tells you to review it. It can't write to the bundle or mark anything
   reviewed: its file writes are limited to the proposals folder, and the tool has no edit action.
 
 ## Command line
@@ -133,6 +134,7 @@ The bundle is plain files: you can also put it in git, open it in Obsidian or VS
   exact resource id/name.
 - Knowledge text is data. The agent treats it as information, never as instructions, but what you import reaches your
   model provider when the agent reads it or when you draft with AI.
+
 ## Connected capabilities
 
 For AWS documentation, on-demand vendor skills and provider-version-specific Terraform guidance, see

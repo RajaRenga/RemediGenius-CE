@@ -1,9 +1,9 @@
 # Continuous improvement — RemediGenius Community Edition
 
 RemediGenius-CE gets better from its own use without a second agent runtime and without weakening its safety model.
-Hermes stays the only agent; the desk stays deterministic and read-only. Improvement happens **offline**, is
-**measured** on a fixed evaluation organization, passes a **security gate**, and reaches the agent only after a
-**person approves** it in the dashboard.
+Hermes stays the only agent; the desk stays deterministic and read-only. Improvement happens offline, is measured on
+a fixed evaluation organization, passes a security gate, and reaches the agent only after a person approves it in the
+dashboard.
 
 Ideas borrowed, not runtimes:
 [SkillOpt](https://github.com/microsoft/skillopt) (a skill document is trainable text: bounded edits from scored

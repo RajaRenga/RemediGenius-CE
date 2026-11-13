@@ -1,6 +1,6 @@
 # Models — RemediGenius Community Edition
 
-RemediGenius-CE uses whatever model Hermes is configured with. The validated model is **`deepseek-v4.1-flash`**, served
+RemediGenius-CE uses whatever model Hermes is configured with. The validated model is `deepseek-v4.1-flash`, served
 through an OpenAI-compatible endpoint (`provider: custom`, `base_url`, key in `MODEL_API_KEY`). Use a model with
 reliable tool calling and at least 64k context.
 
@@ -14,6 +14,6 @@ The key is copied once into the profile's `.env` inside the Hermes home (Hermes 
 secrets). Later changes made in the dashboard are kept. The model never sees the key, and it is never written to
 chat, Terraform variables or logs.
 
-Model usage: deterministic scans and the `security-watch` alert make **no** model calls. Model calls happen when you
+Model usage: deterministic scans and the `security-watch` alert make no model calls. Model calls happen when you
 chat. A briefing typically takes a few calls; an investigation 5–20. Other models and providers work if Hermes supports
 them, but they are not validated.

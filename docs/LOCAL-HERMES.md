@@ -1,8 +1,8 @@
 # Add RemediGenius Community Edition to an existing Hermes
 
 Add a dedicated `remedigenius` profile and reuse your working model configuration. This release targets
-**Hermes 0.23.1**. The installer checks that version before changing profiles. For other versions, keep
-your existing Hermes and use the [pinned Docker workstation](WORKSTATION.md). A version match is not
+Hermes 0.23.1, and the installer checks that version before changing profiles. On other versions, keep your
+existing Hermes and use the [pinned Docker workstation](WORKSTATION.md). Matching the version isn't a
 clean-install certification; see the validation results and limits.
 
 Start from the matching CE source release or checkout; the wheel alone does not include this installer.

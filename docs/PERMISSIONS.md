@@ -114,7 +114,7 @@ proof. Both options are post-v0.9.0 additions; use the matching source checkout.
 The proof writes only its local report: no scan commit, model call or production checkpoint. It uses
 bounded source collection plus IAM/CloudTrail reads. Read the account/region/source outcomes rather
 than treating the process exit code or authenticated-account count as full coverage. See
-live validation and limits.
+[Limits](LIMITS.md) for what this does and does not prove.
 
 ## Terraform provider cache
 

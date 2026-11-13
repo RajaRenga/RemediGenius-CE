@@ -7,7 +7,7 @@ routing; `rg-iac-fix`, `rg-onboard` and `SOUL.md` point to it.
 
 ## What an individual user gets
 
-The account connection reevaluation is in [AWS connections](AWS-CONNECTIONS.md). Managed AWS MCP is now an
+The account connection reevaluation is in [AWS connections](AWS-CONNECTIONS.md). Managed AWS MCP is now a
 standard bounded desk transport on EC2, not a general-purpose script tool in Hermes. This supersedes the initial
 catalog-only assessment below; public Knowledge, Terraform and DeepWiki remain separate native connections.
 
@@ -78,12 +78,12 @@ Registry API code. AWS's old Terraform MCP is deprecated in favor of HashiCorp's
 
 The installer is included in the candidate archive and remains an explicit onboarding choice. After the
 shipped connection is enabled, bootstrap restores its runtime after replacement because `installs/` is
-excluded from checkpoints. Disabled and custom connections are preserved. See
-fresh-install validation.
+excluded from checkpoints. Disabled and custom connections are preserved.
 
 ## Validation limits
 
-Managed account reads and bounded Athena reports have deployment checks; see release validation.
+Managed account reads and bounded Athena reports have deployment checks (see the
+[release validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md)).
 Public documentation retrieval does not certify authenticated document providers. Each provider requires its own
 sign-in, selected-content retrieval and provenance checks. Tool availability is not evidence of complete account
 coverage. Long-duration credential expiry, large-result pagination and forced scan-cap exhaustion remain unverified.
