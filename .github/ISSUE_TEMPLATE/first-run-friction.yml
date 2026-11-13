@@ -1,0 +1,53 @@
+name: First-run friction
+description: Tell us where the install, first scan or first prompt got stuck.
+labels: ["first-run", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying RemediGenius-CE. The fastest way to improve the first run is to hear exactly
+        where it stopped. **Redact account ids, ARNs, bucket names and credentials** from anything you paste.
+  - type: dropdown
+    id: path
+    attributes:
+      label: Which path were you on?
+      options:
+        - Docker workstation
+        - AWS Spot (deploy/aws-single)
+        - Existing Hermes (docs/LOCAL-HERMES.md)
+        - Offline demo (python tools/demo.py)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit
+      placeholder: v0.9.1
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What did you try?
+      description: The command, prompt or step you ran.
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened, and what did you expect?
+      description: Include the exact error or the answer that surprised you. `rgtriage doctor` output helps.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, Docker or AWS region, model provider (no keys).
+  - type: checkboxes
+    id: share
+    attributes:
+      label: May we quote this (redacted) in Discussions to help others?
+      options:
+        - label: Yes, quote it

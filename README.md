@@ -10,15 +10,23 @@ Your AWS services detect the problems. RemediGenius CE brings their findings int
 [Hermes](https://github.com/NousResearch/hermes-agent): see what needs attention, understand the evidence,
 check what was missed, and prepare a fix for human review.
 
-**[Get started](START-HERE.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)** · **[Architecture & access](docs/USER-ARCHITECTURE.md)**
+**[Get started](START-HERE.md)** · **[Try the offline demo](#try-it-without-aws)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
 
-## See an interaction
+## The desk at a glance
 
-[![Actual Hermes dashboard: a coverage question, tool execution, and an answer explaining why zero findings does not mean safe](docs/media/hermes-triage/hermes-coverage.gif)](docs/TUTORIAL.md)
+[![RemediGenius attention board: a P1–P4 queue of grouped AWS security issues with scoring reasons and coverage](docs/media/spot-v091/board-overview.png)](docs/media/spot-v091/board-overview.png)
 
-*Real screen recording, fictional demo data. Opens on the answer, then replays the question and tool calls. Typing and waiting are accelerated.
-Recorded on Hermes 0.21.7 before this release; the GIF illustrates the interaction, not v0.9.1 acceptance evidence.*
-[Full video, still image and reproducible fixture](docs/TUTORIAL.md) ·
+*The real v0.9.1 dashboard on a live AWS account — a prioritized queue, written scoring reasons, and the
+coverage line that says what was and was not read. Account ids, ARNs and bucket names are redacted.*
+
+## See the triage board
+
+[![The attention board a real scan produces: a P1–P4 queue, written scoring reasons, and the coverage matrix](docs/media/spot-v091/board-tour.gif)](docs/TUTORIAL.md)
+
+*The v0.9.1 desk on a live AWS account (Hermes 0.23.1): a prioritized queue, the reasoning behind each
+score, and the coverage matrix that shows what was and was not read. Identifiers are redacted. You drive
+it by asking in chat — the [prompt pack](docs/PROMPTS.md) has starting points.*
+[More stills and the coverage report](docs/TUTORIAL.md) ·
 [v0.9.1 fresh-Spot validation](https://github.com/RajaRenga/RemediGenius-CE/releases/download/v0.9.1/VALIDATION.md)
 
 ## What you can do
@@ -32,9 +40,25 @@ Recorded on Hermes 0.21.7 before this release; the GIF illustrates the interacti
 | **“Open a task for me to review.”** | A human-owned Kanban card with investigation, fix and verification context. With GitHub configured and explicit authorization, CE can open a fix PR; it cannot approve or merge it. |
 | **“Use our ownership and business-criticality rules.”** | Reviewed organization knowledge informs priorities with citations. Explore and maintain it in the Knowledge tab. |
 
-These are example requests, not scripted answers. **For exact coverage, use `/triage coverage`.** An ordinary
-briefing may summarize the board's gap preview. A quiet board, an expired session or a disappearing finding
-is not proof that an account is safe or a threat is contained. [Response contract](docs/RESPONSE-CONTRACT.md)
+These are example requests, not scripted answers — the [prompt pack](docs/PROMPTS.md) has more to copy and adapt.
+**For exact coverage, use `/triage coverage`.** An ordinary briefing may summarize the board's gap preview. A quiet
+board, an expired session or a disappearing finding is not proof that an account is safe or a threat is contained.
+[Response contract](docs/RESPONSE-CONTRACT.md)
+
+## Try it without AWS
+
+No AWS account, no model key, no Docker. The offline demo runs clearly synthetic findings through the real
+pipeline and writes the same board page a real scan writes:
+
+```bash
+git clone https://github.com/RajaRenga/RemediGenius-CE.git
+cd RemediGenius-CE
+pip install -e .
+python tools/demo.py --html
+```
+
+Open the generated `demo-board.html` in a browser. It is the fastest way to see the queue, the scoring and the
+IaC match before you connect anything. [What the demo does and does not prove](docs/TUTORIAL.md)
 
 ## Start with your environment
 
@@ -102,9 +126,14 @@ model usage costs are yours. CE triages existing signals; it is not a detector o
 
 ## Go deeper
 
-[Architecture and interactive diagrams](docs/USER-ARCHITECTURE.md) · [Customize CE](docs/CUSTOMIZATION.md) ·
-[Knowledge sources & MCP](docs/KNOWLEDGE-SOURCES.md) · [GitHub integration](docs/GITHUB.md) ·
-[Native Hermes API](docs/HERMES-API-OPTIONS.md) · [Recovery](docs/RECOVERY.md) ·
-[Troubleshooting](docs/TROUBLESHOOTING.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[Architecture and interactive diagrams](docs/USER-ARCHITECTURE.md) · [Prompt pack](docs/PROMPTS.md) ·
+[Customize CE](docs/CUSTOMIZATION.md) · [Knowledge sources & MCP](docs/KNOWLEDGE-SOURCES.md) ·
+[GitHub integration](docs/GITHUB.md) · [Native Hermes API](docs/HERMES-API-OPTIONS.md) ·
+[Recovery](docs/RECOVERY.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Contributing](CONTRIBUTING.md) ·
+[Security](SECURITY.md)
+
+Tried a prompt that helped — or one that failed? Share it in
+[Discussions](https://github.com/RajaRenga/RemediGenius-CE/discussions) or open a
+[first-run friction issue](https://github.com/RajaRenga/RemediGenius-CE/issues/new/choose).
 
 Apache-2.0. Provided as-is. [License](LICENSE)
