@@ -10,7 +10,7 @@ Your AWS security services already find the problems. RemediGenius CE pulls thei
 on [Hermes](https://github.com/NousResearch/hermes-agent), ranks what matters, shows the evidence behind
 each issue, and drafts fixes for you to review. It reads your account; it never changes it.
 
-**[Get started](START-HERE.md)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
+**[Quickstart](docs/QUICKSTART.md)** · **[Get started](START-HERE.md)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
 
 ## The desk at a glance
 
@@ -44,6 +44,9 @@ may summarize the board's gap preview. And a quiet board, an expired session or 
 is not proof an account is safe. [Response contract](docs/RESPONSE-CONTRACT.md)
 
 ## Run it in your environment
+
+New here? The [Quickstart](docs/QUICKSTART.md) walks the Docker workstation end to end. The guides below are the
+full references.
 
 | Path | What you need | Start here |
 | --- | --- | --- |

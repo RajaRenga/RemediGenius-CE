@@ -1,5 +1,7 @@
 # Start here
 
+Want the step-by-step first run? Go to the [Quickstart](docs/QUICKSTART.md). This page is the overview.
+
 RemediGenius-CE adds one Hermes profile, `remedigenius`, that opens every conversation on your AWS security
 attention board. You talk to it the way you'd talk to a colleague who has already read the findings:
 
