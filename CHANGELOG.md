@@ -1,5 +1,18 @@
 # Changelog — RemediGenius Community Edition (RemediGenius-CE)
 
+## v0.9.2 — prepared for release
+
+- Replace the chat composer's generic coding placeholders with seven desk sample queries through a
+  profile locale overlay (`locales/en-desk.tui.yaml`, selected by `display.language`), synced by the
+  workstation, Spot and existing-Hermes installers. Asking "what can I do?" now answers with sample queries.
+- Expand the prompt pack to about 40 sample requests in eight groups; every group was exercised on a live desk.
+- Make multi-account provisioning consistent: one runtime-identity table (Spot instance role, workstation
+  read role, profile identity) and the exact workstation caller grant, aligned across MULTI-ACCOUNT,
+  ACCESS-QUICKSTART and the onboarding skill.
+- Tighten desk answers: an unreadable account is "the read role could not be assumed; cause unverified",
+  and organization facts are Observed only when an organizations read returned them. Correct the fix-plan
+  intent registry (narrow_ingress production, imdsv2 test-only) and the onboarding auto-deployment wording.
+
 ## v0.9.1 — prepared for release
 
 - Pin Hermes 0.23.1 by immutable Docker digest and require that version for native profile adoption.

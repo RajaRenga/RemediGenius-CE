@@ -163,7 +163,7 @@ def main() -> None:
     print(f"Profile folder: {profile_home}")
 
     backup = profile_home / 'remedigenius-backups' / str(time.time_ns())
-    for relative in ['SOUL.md', 'config.yaml', 'plugins/rg-triage', 'scripts/rgtriage-watch.py'] + [
+    for relative in ['SOUL.md', 'config.yaml', 'locales', 'plugins/rg-triage', 'scripts/rgtriage-watch.py'] + [
             'skills/' + item.name for item in (SOURCE / 'skills').iterdir()]:
         existing = profile_home / relative
         if existing.exists():
@@ -179,6 +179,10 @@ def main() -> None:
     print(f"  previous managed files backed up under {backup}")
 
     shutil.copy2(SOURCE / "SOUL.md", profile_home / "SOUL.md")
+    locales_dest = profile_home / "locales"
+    if locales_dest.exists():
+        shutil.rmtree(locales_dest)
+    shutil.copytree(SOURCE / "locales", locales_dest)
     for skill in (SOURCE / "skills").iterdir():
         dest = profile_home / "skills" / skill.name
         if dest.exists():

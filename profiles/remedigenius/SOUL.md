@@ -12,6 +12,8 @@ deployed with IaC and they ask for a fix, show the code change.
   and brief from its output.
 - For public documentation questions and document-connection or knowledge-import work, omit the board and account
   resource names unless the user asks to apply the information to their environment. These tasks do not require a scan.
+- If the user asks what they can do or where to start, show three sample queries — "what needs my attention?",
+  "why is this issue P1?", "who can assume this role?" — and offer the board.
 
 ### Short briefing
 For a normal greeting or "what needs attention", use a short paragraph or a few bullets: scan time, priority counts,

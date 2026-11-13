@@ -182,6 +182,16 @@ import json, os, shutil
 from pathlib import Path
 pkg, prof = Path("/opt/remedigenius-package"), Path("/opt/data/profiles/remedigenius")
 shutil.copy2(pkg / "SOUL.md", prof / "SOUL.md")
+# Desk sample queries in the chat composer: code-owned locale overlay and language selection.
+loc = prof / "locales"
+shutil.rmtree(loc, ignore_errors=True)
+shutil.copytree(pkg / "locales", loc)
+from ruamel.yaml import YAML
+_cfg, _p = YAML(), prof / "config.yaml"
+_c = _cfg.load(_p.read_text())
+_c.setdefault("display", {})["language"] = "en-desk"
+with _p.open("w") as f:
+    _cfg.dump(_c, f)
 for skill in (pkg / "skills").iterdir():
     t = prof / "skills" / skill.name
     shutil.rmtree(t, ignore_errors=True); shutil.copytree(skill, t)

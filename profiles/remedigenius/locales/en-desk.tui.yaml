@@ -1,0 +1,13 @@
+# RemediGenius-CE desk strings for the Hermes chat (TUI surface).
+# Profile-scoped locale overlay: merged over the bundled English catalog when
+# display.language is en-desk. The composer placeholders are sample queries that
+# lead to real desk workflows; keep them in sync with docs/PROMPTS.md.
+composer.placeholders.ask: 'Try "what needs my attention?"'
+composer.placeholders.explain: 'Try "why is this issue P1?"'
+composer.placeholders.test: 'Try "who can assume this role?"'
+composer.placeholders.refactor: 'Try "investigate this finding"'
+composer.placeholders.help: 'Try "/triage" for the board'
+composer.placeholders.lint: 'Try "propose a fix for this issue"'
+composer.placeholders.config: 'Try "which accounts can you read?"'
+chatBits.branding.tagFull: 'RemediGenius · AWS security desk'
+chatBits.branding.tagMid: 'AWS security desk'

@@ -14,6 +14,8 @@ agent:
 display:
   streaming: false
   show_reasoning: false
+  # Desk sample queries in the chat composer (locales/en-desk.tui.yaml).
+  language: en-desk
 streaming:
   enabled: false
 plugins:

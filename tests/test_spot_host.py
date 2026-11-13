@@ -73,8 +73,9 @@ def test_sync_profile_writes_socket_mode_and_watch_script(host, tmp_path, monkey
     host.sync_profile(ROOT, tmp_path)
     delivered = yaml.safe_load((profile / "config.yaml").read_text())
     assert delivered["model"]["default"] == "keep-me"
-    assert delivered["display"] == {"streaming": False, "show_reasoning": False}
+    assert delivered["display"] == {"streaming": False, "show_reasoning": False, "language": "en-desk"}
     assert delivered["streaming"]["enabled"] is False
+    assert (profile / "locales/en-desk.tui.yaml").exists()
     local = json.loads((profile / "plugins/rg-triage/local.json").read_text())
     assert local == {"socket": "/run/rgtriage/rgtriage.sock", "home": "/data/rgtriage", "proposals": "/opt/data/proposals"}
     assert (profile / "skills/rg-iac-fix/SKILL.md").exists()

@@ -1,5 +1,5 @@
 name: remedigenius
-version: 0.9.1
+version: 0.9.2
 description: "RemediGenius Community Edition (RemediGenius-CE): brings AWS security findings to you in priority order, investigates them read-only, and proposes IaC fixes."
 hermes_requires: "==0.23.1"
 author: "RemediGenius"

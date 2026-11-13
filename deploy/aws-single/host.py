@@ -440,10 +440,15 @@ def sync_profile(source: Path, hermes_home: Path):
     # model text is presented. Other operator settings and provider credentials stay intact.
     run(str(VENV / 'bin/python'), '-c',
         "import pathlib,sys,yaml; p=pathlib.Path(sys.argv[1]); c=yaml.safe_load(p.read_text()) or {}; "
-        "c.setdefault('display',{}).update(streaming=False,show_reasoning=False); "
+        "c.setdefault('display',{}).update(streaming=False,show_reasoning=False,language='en-desk'); "
         "c.setdefault('streaming',{}).update(enabled=False); p.write_text(yaml.safe_dump(c,sort_keys=False))",
         str(profile / 'config.yaml'), capture_output=True)
     shutil.copy2(package / 'SOUL.md', profile / 'SOUL.md')
+    # Desk sample queries in the chat composer: code-owned locale overlay.
+    locales = profile / 'locales'
+    if locales.exists():
+        shutil.rmtree(locales)
+    shutil.copytree(package / 'locales', locales)
     for skill in (package / 'skills').iterdir():
         target = profile / 'skills' / skill.name
         if target.exists():
