@@ -10,7 +10,7 @@ Your AWS services detect the problems. RemediGenius CE brings their findings int
 [Hermes](https://github.com/NousResearch/hermes-agent): see what needs attention, understand the evidence,
 check what was missed, and prepare a fix for human review.
 
-**[Get started](START-HERE.md)** · **[Try the offline demo](#try-it-without-aws)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
+**[Get started](START-HERE.md)** · **[Prompt pack](docs/PROMPTS.md)** · **[Download v0.9.1](https://github.com/RajaRenga/RemediGenius-CE/releases/tag/v0.9.1)**
 
 ## The desk at a glance
 
@@ -45,21 +45,6 @@ These are example requests, not scripted answers — the [prompt pack](docs/PROM
 board, an expired session or a disappearing finding is not proof that an account is safe or a threat is contained.
 [Response contract](docs/RESPONSE-CONTRACT.md)
 
-## Try it without AWS
-
-No AWS account, no model key, no Docker. The offline demo runs clearly synthetic findings through the real
-pipeline and writes the same board page a real scan writes:
-
-```bash
-git clone https://github.com/RajaRenga/RemediGenius-CE.git
-cd RemediGenius-CE
-pip install -e .
-python tools/demo.py --html
-```
-
-Open the generated `demo-board.html` in a browser. It is the fastest way to see the queue, the scoring and the
-IaC match before you connect anything. [What the demo does and does not prove](docs/TUTORIAL.md)
-
 ## Start with your environment
 
 | Path | What you need | Start here |
@@ -67,7 +52,6 @@ IaC match before you connect anything. [What the demo does and does not prove](d
 | **Existing Hermes 0.23.1** | Your existing model configuration; CE adds a dedicated `remedigenius` profile | [Add CE to Hermes](docs/LOCAL-HERMES.md) |
 | **Docker workstation** | Docker and a model provider; use the pinned runtime alongside your current tools | [Run locally](docs/WORKSTATION.md) |
 | **AWS Spot** | Your AWS account, reviewed IAM setup, and a model provider | [Deploy in AWS](deploy/aws-single/README.md) |
-| **Offline preview** | Python and the CE dependencies; no AWS account or model calls | Run `python tools/demo.py` |
 
 Then follow one flow:
 
