@@ -6,6 +6,8 @@ Turn AWS security findings into a prioritized queue, evidence-backed investigati
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 Tested with Hermes 0.23.1
 
+[![RemediGenius Community Edition — the AWS security triage desk on the Hermes agent](docs/media/marketplace-banner.png)](https://github.com/RajaRenga/RemediGenius-CE/releases/latest)
+
 Your AWS security services already find the problems. RemediGenius CE pulls their findings into one desk
 on [Hermes](https://github.com/NousResearch/hermes-agent), ranks what matters, shows the evidence behind
 each issue, and drafts fixes for you to review. It reads your account; it never changes it.
