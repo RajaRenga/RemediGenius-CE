@@ -579,6 +579,10 @@ SECRET_SUFFIXES = (".pem", ".key", ".p12", ".pfx", ".tfstate", ".tfstate.backup"
 
 def _secret_path(raw: str) -> bool:
     """Credential stores and files that hold secrets in plain text (Terraform state, .env, keys)."""
+    # Drive roots must block on every host OS: on POSIX, Path("C:/") resolves to a relative dir,
+    # so the path.parent == path root check below would miss them.
+    if re.fullmatch(r"[A-Za-z]:[\\/]+", raw.strip()):
+        return True
     try:
         path = Path(raw).expanduser().resolve()
     except (OSError, ValueError):
