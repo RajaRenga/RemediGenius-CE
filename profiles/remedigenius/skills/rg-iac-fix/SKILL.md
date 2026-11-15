@@ -57,9 +57,11 @@ or repeat equivalent validation calls. Keep the reviewable proposal and say whic
 <!-- PROTECTED_END -->
 6. Terraform: validate before presenting it as ready —
    `rg_triage action=validate module=<module folder> files=["<proposal>.tf=<target file name>"]`.
-   It runs init (no backend) + validate + fmt on a temp copy. Fix errors from the real diagnostics
-   (up to 3 attempts) and say "validated (syntax/schema), not planned". If terraform is missing,
-   say it was not validated.
+   It runs init (no backend) + validate + fmt on a temp copy; the user approves it, and only providers
+   already in the module's `.terraform.lock.hcl` are installed. If it refuses because the lock file is
+   missing or a provider is not locked, tell the user — never try to work around it. Fix errors from the
+   real diagnostics (up to 3 attempts) and say "validated (syntax/schema), not planned". If terraform is
+   missing, say it was not validated.
 7. Define the **proof of done** with the fix: the decisive read-only call and the values it must return once the
    change is deployed (e.g. `s3 get_public_access_block` → `PublicAccessBlockConfiguration.BlockPublicPolicy: true`).
    Say how the change reaches AWS (their PR and CI/CD; you never apply it).

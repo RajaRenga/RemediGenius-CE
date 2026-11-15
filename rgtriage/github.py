@@ -1139,6 +1139,9 @@ def pr_body(finding: dict, files: list[str], validation: list[dict], evidence: s
 def _default_validate(tree: Path, paths: dict[str, bytes]) -> list[dict]:
     """Check the candidate tree (the parent commit's files with the proposal applied) in the isolated validation service."""
     files = _validators.snapshot_dir(tree)
+    problems = _validators.provider_guard(files, paths)
+    if problems:
+        return [{"check": "provider guard", "result": "fail", "detail": p} for p in problems]
     files.update(paths)
     return _validators.check_tree(files, sorted(paths))
 

@@ -416,7 +416,9 @@ SCHEMA = {
         "remediation playbook. aws = ONE read-only AWS API call (describe/get/list/lookup/search, plus iam simulate_* and "
         "accessanalyzer check_*/validate_policy evaluations) as live evidence; pass account and region; the output starts "
         "with an Evidence line (account, time, complete or partial). "
-        "validate = terraform init/validate/fmt of a module copy with your proposed .tf files overlaid (no plan/apply). "
+        "validate = terraform init/validate/fmt of a module copy with your proposed .tf files overlaid (no plan/apply; the user "
+        "approves it; proposals cannot change terraform{}/required_providers or the lock file, and init installs only providers "
+        "already in the module's .terraform.lock.hcl or in the operator's vetted plugin dir). "
         "decide = record the user's decision (acknowledged, investigating, fixing, accepted_risk, false_positive, "
         "suppressed, resolved) with their reason. doctor = access/coverage check. onboarding = which AWS accounts are "
         "authenticated, findings-only access or not covered, regional member views, discovery errors, and reviewed role setup. "
@@ -598,6 +600,15 @@ def _secret_path(raw: str) -> bool:
     return path == Path.home().resolve() or path.parent == path
 
 
+def _locked_provider_names(module: str) -> list[str]:
+    """The provider addresses in a module's existing lock file: exactly what a validation may install."""
+    try:
+        text = (Path(str(module)).expanduser() / ".terraform.lock.hcl").read_text(encoding="utf-8", errors="replace")
+    except (OSError, ValueError):
+        return []
+    return sorted(set(re.findall(r'^\s*provider\s+"([^"]+)"', text, re.M)))
+
+
 def on_pre_tool_call(tool_name: str = "", args: dict | None = None, **_kwargs):
     if tool_name == "rg_triage":
         _guard_response_request(args or {}, _kwargs.get("session_id"), _kwargs.get("turn_id"))
@@ -617,11 +628,23 @@ def on_pre_tool_call(tool_name: str = "", args: dict | None = None, **_kwargs):
         a = args or {}
         return {"action": "approve", "rule_key": "rg_triage:decide",
                 "message": f"Record '{a.get('status')}' for finding {a.get('ref')}{' (whole issue)' if a.get('issue') else ''}: {a.get('reason')}"}
+    if tool_name == "rg_triage" and (args or {}).get("action") == "validate":
+        # Validation runs terraform init/validate on model-written files: the user approves it, and the message names
+        # the module and exactly which providers init may install (the module's existing lock file, never model-chosen).
+        a = args or {}
+        providers = _locked_provider_names(a.get("module") or "")
+        named = ", ".join(providers) if providers else "none locked — init will refuse unless the operator configured a vetted plugin dir"
+        return {"action": "approve", "rule_key": "rg_triage:validate",
+                "message": f"Validate proposed Terraform files against module {a.get('module')} (init/validate/fmt, no plan or apply). "
+                           f"Providers init may install, from the module's existing lock file: {named}. "
+                           f"Files: {', '.join(a.get('files') or [])}"}
     if tool_name == "rg_triage" and (args or {}).get("action") == "github" and (args or {}).get("op") == "publish":
         a = args or {}
         return {"action": "approve", "rule_key": "rg_triage:github-publish",
                 "message": f"Push the proposed change for finding {a.get('ref')} to a RemediGenius feature branch and open a pull request into the development "
-                           f"branch (a human still has to review and merge it): {', '.join(a.get('files') or [])}"}
+                           f"branch (a human still has to review and merge it): {', '.join(a.get('files') or [])}. "
+                           f"Before pushing, the change is validated with terraform init/validate against the repository's existing provider lock file only "
+                           f"(proposals cannot change terraform{{}}/required_providers or the lock file)."}
     if tool_name not in WRITE_TOOLS:
         return None
     target = (args or {}).get("path") or (args or {}).get("file_path") or ""

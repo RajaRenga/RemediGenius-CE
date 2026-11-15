@@ -820,6 +820,7 @@ def cmd_validate(args):
                  f"approved: {', '.join(str(r) for r in roots) or 'none configured'}")
     try:
         files = validators.snapshot_dir(module.resolve())
+        overlays: dict[str, bytes] = {}
         proposals = config.proposals_dir().resolve()
         for spec in args.file:
             source, _, name = spec.partition("=")
@@ -830,7 +831,11 @@ def cmd_validate(args):
                 sys.exit(f"DENIED: proposed files must be in the proposals folder ({proposals}), not {source_path}")
             if source_path.stat().st_size > validators.MAX_MODULE_FILE_BYTES:
                 sys.exit(f"proposed file is too large: {source_path}")
-            files[validators.safe_relative(name or source_path.name)] = source_path.read_bytes()
+            overlays[validators.safe_relative(name or source_path.name)] = source_path.read_bytes()
+        problems = validators.provider_guard(files, overlays)
+        if problems:
+            sys.exit("DENIED: " + "; ".join(problems))
+        files.update(overlays)
     except ValueError as exc:
         sys.exit(f"DENIED: {exc}")
     ok, lines = validators.check_module(files)

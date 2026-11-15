@@ -15,6 +15,11 @@ process that can read the GitHub App key. On the Spot the desk therefore sends t
 (`rgtriage serve-validate`, its own OS user with no access to the key, the policy or the instance credentials) and gets the results back.
 `RGVALIDATE_SOCKET` names that service; when it is set a missing or failing service **fails the validation closed** and never falls back
 to running the tools in the caller. Without it (a workstation, where GitHub publishing is disabled) the tools run locally.
+
+Provider lockdown. The files being checked are model-written, so they must never be able to choose which provider code gets downloaded
+and run: proposals cannot add or change `terraform {}` / `required_providers` blocks or the `.terraform.lock.hcl` file (`provider_guard`),
+and `terraform init` runs only against the module's existing lock file (every requirement must already be locked) or an operator-vetted
+`RGTRIAGE_TF_PLUGIN_DIR`. The tools get an allowlisted environment (`clean_env`), never the caller's full one.
 """
 from __future__ import annotations
 
@@ -36,7 +41,12 @@ TIMEOUT = 600
 MAX_TREE_BYTES = 64 * 1024 * 1024
 MAX_TREE_FILES = 20000
 MAX_MODULE_FILE_BYTES = 5 * 1024 * 1024
-SECRET_ENV = re.compile(r"^(AWS_|GITHUB_|GH_|RGGITHUB_|RGVALIDATE_|MODEL_API_KEY|.*(TOKEN|SECRET|PASSWORD|PRIVATE_KEY)).*", re.I)
+LOCK_FILE = ".terraform.lock.hcl"
+# Allowlist, not blocklist: a name-based blocklist let every *_API_KEY model-provider key through to terraform and the
+# providers it downloads. Only what the tools need to run at all is passed; TF_* stays operator-controlled.
+ENV_ALLOW = {"PATH", "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "SYSTEMROOT", "WINDIR", "PATHEXT",
+             "TEMP", "TMP", "TMPDIR", "LANG", "LANGUAGE"}
+ENV_ALLOW_PREFIX = ("LC_", "TF_")
 MODULE_SKIP = (".terraform", ".git")
 MODULE_SKIP_PATTERNS = (r"\.tfstate", r"\.tfvars(\.json)?$", r"(^|/)\.env", r"\.pem$", r"\.key$", r"(^|/)id_(rsa|ed25519)")
 
@@ -47,7 +57,7 @@ def find_tool(name: str) -> str | None:
 
 
 def clean_env() -> dict:
-    env = {k: v for k, v in os.environ.items() if not SECRET_ENV.match(k)}
+    env = {k: v for k, v in os.environ.items() if k.upper() in ENV_ALLOW or k.upper().startswith(ENV_ALLOW_PREFIX)}
     env.update(TF_IN_AUTOMATION="1", TF_INPUT="0", CHECKPOINT_DISABLE="1", NO_COLOR="1")
     return env
 
@@ -136,6 +146,116 @@ def unpack(blob: bytes, dest: Path) -> list[str]:
     return names
 
 
+# ------------------------------------------------------------------ provider lockdown
+
+_HCL_NOISE = re.compile(r'<<-?([A-Za-z0-9_]+)\r?\n.*?\r?\n\1|"(?:[^"\\\n]|\\.)*"|#[^\n]*|//[^\n]*|/\*.*?\*/', re.S)
+
+
+def _hcl_skeleton(text: str) -> str:
+    """HCL with comments removed and braces inside strings/heredocs neutralized, so brace matching sees only structure.
+
+    String CONTENT is kept (the provider `source` lives in a string and is exactly what must be compared); only its
+    braces are replaced, so a `}` in a string cannot end a block early and a `terraform {` in a string cannot start one.
+    """
+    def repl(match: re.Match) -> str:
+        token = match.group(0)
+        if token.startswith('"') or token.startswith("<<"):
+            return token.replace("{", "\x01").replace("}", "\x02")
+        return ""
+
+    return _HCL_NOISE.sub(repl, text)
+
+
+def _terraform_blocks(text: str) -> list[str]:
+    """The top-level `terraform { ... }` blocks of a file, whitespace-normalized and sorted."""
+    skeleton, blocks = _hcl_skeleton(text), []
+    for match in re.finditer(r"(?<![\w-])terraform\s*\{", skeleton):
+        depth, start = 1, match.end()
+        for i in range(start, len(skeleton)):
+            depth += (skeleton[i] == "{") - (skeleton[i] == "}")
+            if depth == 0:
+                blocks.append(" ".join(skeleton[match.start():i + 1].split()))
+                break
+    return sorted(blocks)
+
+
+def _json_terraform_block(data: bytes) -> str:
+    """The `terraform` key of a .tf.json file, normalized; unparseable content is its own sentinel (Terraform rejects it too)."""
+    if not data.strip():
+        return json.dumps(None)
+    try:
+        doc = json.loads(data.decode("utf-8", "replace"))
+    except ValueError:
+        return "unparseable"
+    return json.dumps(doc.get("terraform") if isinstance(doc, dict) else None, sort_keys=True)
+
+
+def provider_guard(base: dict[str, bytes], changes: dict[str, bytes]) -> list[str]:
+    """Refuse proposals that add or change `terraform {}` / `required_providers` blocks or the dependency lock file.
+
+    `base` is the module snapshot the proposal is overlaid on; a file missing from it is new. The provider set a validation
+    can install must come from the operator's repository, never from model-written text. Covers HCL and JSON syntax.
+    """
+    problems = []
+    for rel, data in sorted(changes.items()):
+        if rel.replace("\\", "/").rsplit("/", 1)[-1] == LOCK_FILE:
+            problems.append(f"{rel}: a proposal cannot add or change the dependency lock file ({LOCK_FILE})")
+            continue
+        if rel.endswith(".tf.json"):
+            if _json_terraform_block(base.get(rel, b"")) != _json_terraform_block(data):
+                problems.append(f"{rel}: a proposal cannot add or change terraform {{}} / required_providers blocks")
+            continue
+        if not rel.endswith(".tf"):
+            continue
+        before = _terraform_blocks(base.get(rel, b"").decode("utf-8", "replace"))
+        after = _terraform_blocks(data.decode("utf-8", "replace"))
+        if before != after:
+            problems.append(f"{rel}: a proposal cannot add or change terraform {{}} / required_providers blocks")
+    return problems
+
+
+def _locked_providers(tree: Path) -> set[str]:
+    lock = tree / LOCK_FILE
+    if not lock.is_file():
+        return set()
+    return set(re.findall(r'^\s*provider\s+"([^"]+)"', lock.read_text(encoding="utf-8", errors="replace"), re.M))
+
+
+def _init_plan(tree: Path, terraform: str, env: dict) -> tuple[list[str] | None, str]:
+    """Extra `terraform init` flags that keep provider installation inside what the operator already trusts, or a refusal.
+
+    `-lockfile=readonly` alone still DOWNLOADS unlocked providers (it only refuses to record them), so with a lock file every
+    requirement is first listed statically (`terraform providers`, no installation) and must already be locked. Without a lock
+    file only an operator-vetted `-plugin-dir` is allowed; that mode never reaches a registry.
+    """
+    if (tree / LOCK_FILE).is_file():
+        # Child modules must be present for the static listing; `get` installs module HCL only, never provider code
+        # (init already fetched remote modules before this lockdown, so this adds no new exposure).
+        rc, out = _run([terraform, "get", "-no-color"], tree, env)
+        if rc != 0:
+            return None, f"cannot install the module's child modules (no provider is downloaded by this step): {out[-600:]}"
+        # With a lock file present, `terraform providers` demands already-installed plugins; without one it is pure
+        # static config analysis (which is what we want before anything is installed). Move it aside for the listing.
+        lock, aside = tree / LOCK_FILE, tree / (LOCK_FILE + ".rgcheck")
+        lock.rename(aside)
+        try:
+            rc, out = _run([terraform, "providers", "-no-color"], tree, env)
+        finally:
+            aside.rename(lock)
+        if rc != 0:
+            return None, f"cannot list the provider requirements without installing anything: {out[-600:]}"
+        unlocked = sorted(set(re.findall(r"provider\[([^\]\s]+)\]", out)) - _locked_providers(tree))
+        if unlocked:
+            return None, ("refusing to download providers that are not in the module's " + LOCK_FILE + ": " + ", ".join(unlocked)
+                          + ". A person must commit an updated lock file, or the operator configures RGTRIAGE_TF_PLUGIN_DIR.")
+        return ["-lockfile=readonly"], ""
+    plugin_dir = os.environ.get("RGTRIAGE_TF_PLUGIN_DIR", "")
+    if plugin_dir and Path(plugin_dir).is_dir():
+        return [f"-plugin-dir={plugin_dir}"], ""
+    return None, ("no " + LOCK_FILE + " in this module and no RGTRIAGE_TF_PLUGIN_DIR configured: refusing to download providers "
+                  "the model could choose. Commit a lock file, or point RGTRIAGE_TF_PLUGIN_DIR at a vetted provider directory.")
+
+
 # ------------------------------------------------------------------ the checks
 
 def _run(cmd: list[str], cwd: Path, env: dict) -> tuple[int, str]:
@@ -170,7 +290,11 @@ def validate_tree(tree: Path, changed: list[str], which=find_tool) -> list[dict]
             if not terraform:
                 results.append(_row(label, "skipped", "terraform is not installed: this change was NOT validated by Terraform"))
                 continue
-            rc, out = _run([terraform, "init", "-backend=false", "-input=false", "-no-color"], module, env)
+            extra, refusal = _init_plan(module, terraform, env)
+            if extra is None:
+                results.append(_row(f"{label} init", "fail", refusal))
+                continue
+            rc, out = _run([terraform, "init", "-backend=false", "-input=false", "-no-color", *extra], module, env)
             if rc != 0:
                 results.append(_row(f"{label} init", "fail", out))
                 continue
@@ -220,6 +344,17 @@ def validate_tree(tree: Path, changed: list[str], which=find_tool) -> list[dict]
 
 def validate_overlay(tree: Path, changes: dict[str, bytes], which=find_tool) -> list[dict]:
     """Write the proposed files over `tree` (inside it, never through a link) and check them."""
+    base = {}
+    for rel in changes:
+        try:
+            target = safe_join(tree, rel)
+        except ValueError:
+            continue
+        if target.is_file():
+            base[rel] = target.read_bytes()
+    problems = provider_guard(base, changes)
+    if problems:
+        return [_row("provider guard", "fail", p) for p in problems]
     results = []
     for rel, data in changes.items():
         try:
@@ -242,13 +377,16 @@ def terraform_module(tree: Path, which=find_tool) -> tuple[bool, list[str]]:
     env = clean_env()
     if env.get("TF_PLUGIN_CACHE_DIR"):  # reuse downloaded providers across validations
         Path(env["TF_PLUGIN_CACHE_DIR"]).mkdir(parents=True, exist_ok=True)
+    extra, refusal = _init_plan(tree, terraform, env)
+    if extra is None:
+        return False, [refusal, "Result: NOT VALID — nothing was validated; no provider was downloaded."]
     lines, ok = [], True
-    for label, cmd in (("init", [terraform, "init", "-backend=false", "-input=false", "-no-color"]),
+    for label, cmd in (("init", [terraform, "init", "-backend=false", "-input=false", "-no-color", *extra]),
                        ("validate", [terraform, "validate", "-no-color"]),
                        ("fmt", [terraform, "fmt", "-check", "-diff", "-no-color"])):
         rc, text = _run(cmd, tree, env)
         if label == "init" and rc == 0:
-            lines.append("init: ok (no backend, providers downloaded)")
+            lines.append("init: ok (no backend; only locked or vetted providers installed)")
             continue
         status = "ok" if rc == 0 else ("formatting differences" if label == "fmt" else "FAILED")
         ok = ok and (rc == 0 or label == "fmt")
