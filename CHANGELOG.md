@@ -1,5 +1,24 @@
 # Changelog — RemediGenius Community Edition (RemediGenius-CE)
 
+## v0.9.3 — marketplace security patch
+
+- Terraform validation can no longer run model-chosen provider code: `validate` needs the user's
+  approval, naming the module and the providers its lock file allows; proposals cannot add or change
+  `terraform {}` / `required_providers` blocks or `.terraform.lock.hcl` (HCL and JSON syntax);
+  `terraform init` installs only providers already in the module's lock file (checked by a static
+  requirements listing before anything is installed) or from an operator-vetted
+  `RGTRIAGE_TF_PLUGIN_DIR`, and refuses otherwise.
+- Validation tools (terraform, tflint, cfn-lint) run with an allowlisted environment; model-provider
+  API keys no longer reach them or the providers they load.
+- The plugin README discloses what the plugin changes in a Hermes profile: approval prompts, the
+  write guard outside proposals, held streaming, and local traces on by default
+  (`RGTRIAGE_TRACES=off` disables).
+- Desk state defaults to a per-profile home under the Hermes home so profiles stay separate;
+  existing `~/.rgtriage` state is kept until moved, and `RGTRIAGE_HOME` / installer settings win.
+- PyPI patch for the Hermes marketplace listing (catalog review of `27e980a`). Full suite green on
+  Windows and CI (ubuntu + windows), plus live Terraform 1.17.2 lockdown checks. No infrastructure,
+  storage or dependency-pin changes; the last fresh-Spot gate remains v0.9.2.
+
 ## v0.9.2 — prepared for release
 
 - Replace the chat composer's generic coding placeholders with seven desk sample queries through a
