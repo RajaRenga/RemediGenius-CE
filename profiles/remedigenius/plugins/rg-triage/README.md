@@ -28,8 +28,8 @@ Wherever this plugin is enabled, it changes how the agent behaves:
 - **Streaming.** The plugin holds streaming for every reply (`hold_stream`): critical reports are
   rendered from desk evidence and redacted before you see them, not streamed token by token.
 - **Local traces, on by default.** Every turn (messages and tool results, redacted) is written to a
-  local trace under `~/.rgtriage/rg-traces`, kept 30 days, read by `rgtriage improve` and the
-  analytics tab. Nothing is sent anywhere. Set `RGTRIAGE_TRACES=off` to disable it entirely.
+  local trace under `rg-traces` in the state home (see below), kept 30 days, read by `rgtriage improve`
+  and the analytics tab. Nothing is sent anywhere. Set `RGTRIAGE_TRACES=off` to disable it entirely.
 - **Read guard.** Credential stores (`~/.aws`, `~/.ssh`, keys, `.env`, Terraform state) and whole-home
   or drive-root searches are blocked.
 
@@ -38,8 +38,10 @@ Wherever this plugin is enabled, it changes how the agent behaves:
 - Runs `python -m rgtriage …` as a subprocess, or talks to a running desk over a local socket.
   The engine reads AWS through the credentials you configure (a read-only role is the documented
   setup) and never writes to AWS. Every fix is a proposal a person reviews.
-- Reads and writes its own state under `~/.rgtriage` (or `RGTRIAGE_HOME`), plus a proposals folder
-  for drafted IaC changes.
+- Reads and writes its own state in a per-profile home (`rgtriage` under your Hermes home), so two
+  Hermes profiles never share one desk. Installs that already have state under `~/.rgtriage` keep
+  using it until you move it; `RGTRIAGE_HOME` or the installer's `local.json` override both. A
+  proposals folder for drafted IaC changes lives beside the state.
 - Validation (`validate`, and the check before `github publish`) runs `terraform init/validate/fmt`,
   tflint and cfn-lint on a scratch copy — never plan or apply. Model-written proposals cannot add or
   change `terraform {}` / `required_providers` blocks or `.terraform.lock.hcl`; `init` installs only

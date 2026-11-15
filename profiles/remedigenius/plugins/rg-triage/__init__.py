@@ -29,6 +29,24 @@ TIMEOUT = 300
 WRITE_TOOLS = {"write_file", "patch"}
 
 
+def _default_home() -> str:
+    """Per-profile state home under the Hermes home, so two profiles never share one desk.
+
+    Existing installs keep the legacy ~/.rgtriage while it holds state and the per-profile folder does
+    not exist yet — switching the default must never make a desk look empty. Explicit RGTRIAGE_HOME /
+    local.json always win (the deployments set those). Hermes is not importable offline or standalone.
+    """
+    legacy = Path.home() / ".rgtriage"
+    try:
+        from hermes_constants import get_hermes_home
+        per_profile = Path(get_hermes_home()) / "rgtriage"
+    except Exception:  # never break plugin loading over where state lives
+        return str(legacy)
+    if per_profile.exists() or not legacy.exists():
+        return str(per_profile)
+    return str(legacy)
+
+
 def _settings() -> dict:
     """local.json is written by the installer: python interpreter, package source and state folder."""
     try:
@@ -38,7 +56,7 @@ def _settings() -> dict:
     return {
         "python": os.environ.get("RGTRIAGE_PYTHON") or data.get("python") or sys.executable,
         "src": os.environ.get("RGTRIAGE_SRC") or data.get("src") or "",
-        "home": os.environ.get("RGTRIAGE_HOME") or data.get("home") or str(Path.home() / ".rgtriage"),
+        "home": os.environ.get("RGTRIAGE_HOME") or data.get("home") or _default_home(),
         "socket": os.environ.get("RGTRIAGE_SOCKET") or data.get("socket") or "",
         "durable": bool(data.get("durable")),
         # Hermes only allows file writes under its home, so containers keep proposals at /opt/data/proposals.
