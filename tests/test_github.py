@@ -809,6 +809,9 @@ def test_tools_never_see_credentials_in_their_environment(monkeypatch):
 
 @pytest.mark.skipif(not shutil.which("terraform"), reason="terraform not installed")
 def test_terraform_validate_catches_a_broken_change_and_passes_a_good_one(tmp_path):
+    for name in ("g", "b", "u"):  # validation only runs against an existing lock file; these modules need no providers
+        (tmp_path / name / "m").mkdir(parents=True)
+        (tmp_path / name / "m" / ".terraform.lock.hcl").write_text("# This file is maintained by Terraform.\n")
     good = validators.validate_overlay(tmp_path / "g", {"m/main.tf": b'locals {\n  a = 1\n}\n'})
     assert {r["check"]: r["result"] for r in good}["terraform m validate"] == "pass"
     bad = validators.validate_overlay(tmp_path / "b", {"m/main.tf": b'locals {\n  a = nope.missing\n}\n'})

@@ -1,6 +1,8 @@
 """The Hermes plugin is plain Python; load it from the profile folder and test its hooks offline."""
 import importlib.util
 import json
+import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -195,3 +197,53 @@ def test_posture_fix_keeps_reviewable_model_diff(plugin, monkeypatch):
     plugin.on_pre_tool_call("rg_triage", args, session_id="a", turn_id="1")
     plugin.on_post_tool_call("rg_triage", args, "IaC candidate", session_id="a", turn_id="1")
     assert plugin.on_transform_llm_output("Proposed reviewed diff", "a", "1") is None
+
+
+# ---------------------------------------------------------------- per-profile state home
+
+@pytest.fixture
+def home_dirs(plugin, tmp_path, monkeypatch):
+    """A fake user home and Hermes profile home, a fake hermes_constants, and no installer overrides."""
+    plugin_dir = tmp_path / "plugin"
+    plugin_dir.mkdir()
+    monkeypatch.setattr(plugin, "HERE", plugin_dir)
+    user_home = tmp_path / "userhome"
+    user_home.mkdir()
+    monkeypatch.setenv("HOME", str(user_home))
+    monkeypatch.setenv("USERPROFILE", str(user_home))
+    monkeypatch.delenv("RGTRIAGE_HOME", raising=False)
+    hermes_home = tmp_path / "hermes" / "profiles" / "work"
+    fake = types.ModuleType("hermes_constants")
+    fake.get_hermes_home = lambda: hermes_home
+    monkeypatch.setitem(sys.modules, "hermes_constants", fake)
+    return {"user": user_home, "hermes": hermes_home, "legacy": user_home / ".rgtriage",
+            "fresh": hermes_home / "rgtriage", "plugin_dir": plugin_dir}
+
+
+def test_new_install_defaults_to_the_per_profile_home(plugin, home_dirs):
+    assert plugin._settings()["home"] == str(home_dirs["fresh"])
+    assert plugin._env()["RGTRIAGE_HOME"] == str(home_dirs["fresh"])
+
+
+def test_existing_legacy_state_is_never_orphaned(plugin, home_dirs):
+    home_dirs["legacy"].mkdir()
+    assert plugin._settings()["home"] == str(home_dirs["legacy"])
+
+
+def test_per_profile_home_wins_once_it_exists(plugin, home_dirs):
+    home_dirs["legacy"].mkdir()
+    home_dirs["fresh"].mkdir(parents=True)
+    assert plugin._settings()["home"] == str(home_dirs["fresh"])
+
+
+def test_without_hermes_the_legacy_default_still_works(plugin, home_dirs, monkeypatch):
+    monkeypatch.setitem(sys.modules, "hermes_constants", None)  # makes the import fail
+    assert plugin._settings()["home"] == str(home_dirs["legacy"])
+
+
+def test_explicit_env_and_installer_home_still_win(plugin, home_dirs, monkeypatch):
+    monkeypatch.setenv("RGTRIAGE_HOME", str(home_dirs["user"] / "explicit"))
+    assert plugin._settings()["home"] == str(home_dirs["user"] / "explicit")
+    monkeypatch.delenv("RGTRIAGE_HOME")
+    (home_dirs["plugin_dir"] / "local.json").write_text(json.dumps({"home": str(home_dirs["user"] / "installed")}))
+    assert plugin._settings()["home"] == str(home_dirs["user"] / "installed")
